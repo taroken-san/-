@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111418;
+    --surface2: #181c22;
+    --border: #1f2530;
+    --accent: #00d4a0;
+    --accent2: #0099ff;
+    --red: #ff4560;
+    --green: #00d4a0;
+    --yellow: #ffd166;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Noto Sans JP', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .logo span { color: var(--muted); font-weight: 400; }
+
+  .header-stats {
+    display: flex;
+    gap: 24px;
+  }
+
+  .hstat {
+    text-align: right;
+  }
+
+  .hstat-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  .hstat-value {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .pos { color: var(--green); }
+  .neg { color: var(--red); }
+  .neu { color: var(--text); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 24px;
+  }
+
+  .tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab:hover { color: var(--text); }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* MAIN */
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group.wide { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 1px;
+  }
+
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 8px 10px;
+    transition: border-color 0.2s;
+    outline: none;
+    width: 100%;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 60px; font-family: var(--sans); font-size: 13px; }
+
+  select option { background: var(--surface2); }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+  }
+
+  .btn-primary:hover { background: #00f0b8; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .btn-danger:hover { background: var(--red); color: #fff; }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  /* DASHBOARD STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+  }
+
+  .stat-box-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .stat-box-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /* CHART */
+  .chart-wrap {
+    position: relative;
+    height: 220px;
+  }
+
+  /* TAG WIN RATE */
+  .tag-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .tag-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px;
+  }
+
+  .tag-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent2);
+    margin-bottom: 10px;
+  }
+
+  .tag-bar-wrap {
+    background: var(--bg);
+    border-radius: 2px;
+    height: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .tag-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .tag-details {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* TRADE LIST */
+  .trade-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .trade-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trade-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .trade-table tr:last-child td { border-bottom: none; }
+  .trade-table tr:hover td { background: var(--surface2); }
+
+  .tag-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 2px 7px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent2);
+    letter-spacing: 1px;
+  }
+
+  .ticker-cell {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .pnl-cell {
+    font-family: var(--mono);
+    font-weight: 700;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+
+  /* DATA ACTIONS */
+  .data-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #importFile { display: none; }
+
+  /* NOTIFICATION */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 3px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 999;
+    letter-spacing: 1px;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* RULE COMPLIANCE */
+  .rule-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .rule-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .rule-btn-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .rule-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .rule-btn:hover { border-color: var(--muted); color: var(--text); }
+  .rule-btn.sel-ok  { border-color: var(--green); background: rgba(0,212,160,0.12); color: var(--green); }
+  .rule-btn.sel-ng  { border-color: var(--red);   background: rgba(255,69,96,0.12);  color: var(--red); }
+  .rule-btn.sel-na  { border-color: var(--muted); background: rgba(100,116,139,0.12); color: var(--muted); }
+
+  .compliance-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+  }
+  .badge-ok { background: rgba(0,212,160,0.15); color: var(--green); border: 1px solid rgba(0,212,160,0.3); }
+  .badge-ng { background: rgba(255,69,96,0.15);  color: var(--red);   border: 1px solid rgba(255,69,96,0.3); }
+  .badge-na { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  .plan-row {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .plan-val { color: var(--text); }
+
+  /* RULE HINT BOX */
+  .rule-hint {
+    background: rgba(0,153,255,0.07);
+    border: 1px solid rgba(0,153,255,0.2);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+
+  .rule-hint-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .rule-hint-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .rule-hint-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .rule-hint-item .dot {
+    color: var(--accent2);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* AUTO CALC BOX */
+  .auto-calc {
+    grid-column: 1 / -1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    display: none;
+  }
+
+  .auto-calc.visible { display: block; }
+
+  .auto-calc-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .auto-calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .auto-calc-row:last-child { border-bottom: none; }
+
+  .auto-calc-label { color: var(--muted); font-size: 12px; }
+  .auto-calc-val   { font-family: var(--mono); font-weight: 700; }
+
+  .apply-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid var(--accent2);
+    background: transparent;
+    color: var(--accent2);
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
+
+  .apply-btn:hover { background: rgba(0,153,255,0.1); }
+
+  /* CHECKLIST */
+  .checklist {
+    grid-column: 1 / -1;
+    background: rgba(255,209,102,0.05);
+    border: 1px solid rgba(255,209,102,0.2);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+
+  .checklist-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,209,102,0.1);
+  }
+
+  .check-item:last-child { border-bottom: none; }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgba(255,209,102,0.4);
+    border-radius: 2px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+
+  .check-item.checked .check-box {
+    background: var(--yellow);
+    border-color: var(--yellow);
+    color: #000;
+  }
+
+  .check-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .check-item.checked .check-text { color: var(--text); }
+
+  .checklist-progress {
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* SECTION DIVIDER IN FORM */
+  .form-section-label {
+    grid-column: 1 / -1;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-stats { gap: 12px; }
+    .hstat-value { font-size: 13px; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .trade-table th:nth-child(5),
+    .trade-table td:nth-child(5) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">TRADE<span>_LOG</span></div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-label">累積損益</div>
+      <div class="hstat-value" id="h-total">¥0</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">勝率</div>
+      <div class="hstat-value neu" id="h-winrate">—</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">取引数</div>
+      <div class="hstat-value neu" id="h-count">0</div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('dashboard')">📊 ダッシュボード</div>
+  <div class="tab" onclick="switchTab('entry')">＋ 取引入力</div>
+  <div class="tab" onclick="switchTab('history')">📋 履歴</div>
+</div>
+
+<div class="container">
+
+  <!-- DASHBOARD -->
+  <div class="panel active" id="panel-dashboard">
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-box-label">累積損益</div>
+        <div class="stat-box-value" id="d-total">¥0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">勝率</div>
+        <div class="stat-box-value neu" id="d-winrate">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">平均損益</div>
+        <div class="stat-box-value neu" id="d-avg">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">Profit Factor</div>
+        <div class="stat-box-value neu" id="d-pf">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">最大利益</div>
+        <div class="stat-box-value pos" id="d-maxwin">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">最大損失</div>
+        <div class="stat-box-value neg" id="d-maxloss">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-label">ルール遵守率</div>
+        <div class="stat-box-value neu" id="d-compliance">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">累積損益推移</div>
+      <div class="chart-wrap">
+        <canvas id="pnlChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">戦略タグ別 勝率・損益</div>
+      <div id="tagStats" class="tag-grid">
+        <div class="empty"><div class="empty-icon">📭</div>取引データがありません</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ENTRY -->
+  <div class="panel" id="panel-entry">
+    <div class="card">
+      <div class="card-title">取引を記録する</div>
+
+      <!-- RULE HINT -->
+      <div class="rule-hint">
+        <div class="rule-hint-title">📌 マイルール</div>
+        <div class="rule-hint-items">
+          <div class="rule-hint-item"><span class="dot">▸</span><span>損切り：買値 <b style="color:var(--red)">−5%</b></span></div>
+          <div class="rule-hint-item"><span class="dot">▸</span><span>利確①：3日以内 <b style="color:var(--green)">+7%</b> で半分売り</span></div>
+          <div class="rule-hint-item"><span class="dot">▸</span><span>利確②：高値から <b style="color:var(--yellow)">−3%</b> で残り売り</span></div>
+          <div class="rule-hint-item"><span class="dot">▸</span><span>膠着：7日で <b style="color:var(--muted)">±2%</b> なら撤退</span></div>
+          <div class="rule-hint-item"><span class="dot">▸</span><span>最長保有：<b style="color:var(--accent2)">30日</b></span></div>
+          <div class="rule-hint-item"><span class="dot">▸</span><span>損失上限：<b style="color:var(--red)">¥30,000/回</b></span></div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>銘柄コード</label>
+          <input type="text" id="f-ticker" placeholder="例: 7203" maxlength="8">
+        </div>
+        <div class="form-group">
+          <label>銘柄名（任意）</label>
+          <input type="text" id="f-name" placeholder="例: トヨタ自動車">
+        </div>
+        <div class="form-group">
+          <label>買い日</label>
+          <input type="date" id="f-buydate">
+        </div>
+        <div class="form-group">
+          <label>買い単価（円）</label>
+          <input type="number" id="f-buyprice" placeholder="0" min="0" oninput="updateCalc()">
+        </div>
+        <div class="form-group">
+          <label>売り日</label>
+          <input type="date" id="f-selldate">
+        </div>
+        <div class="form-group">
+          <label>売り単価（円）</label>
+          <input type="number" id="f-sellprice" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>株数</label>
+          <input type="number" id="f-shares" placeholder="100" min="1" oninput="updateCalc()">
+        </div>
+        <div class="form-group">
+          <label>戦略タグ</label>
+          <select id="f-tag">
+            <option value="">— 選択 —</option>
+            <option value="トレンドフォロー">トレンドフォロー</option>
+            <option value="ブレイクアウト">ブレイクアウト</option>
+            <option value="平均回帰">平均回帰</option>
+            <option value="決算狙い">決算狙い</option>
+            <option value="押し目買い">押し目買い</option>
+            <option value="ショート">ショート</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div class="form-group wide">
+          <label>メモ（エントリー理由・反省など）</label>
+          <textarea id="f-memo" placeholder="例: 25日線タッチで反発。出来高増加を確認。"></textarea>
+        </div>
+
+        <!-- AUTO CALC -->
+        <div class="auto-calc" id="autoCalc">
+          <div class="auto-calc-title">🔢 ルールベース 自動計算</div>
+          <div class="auto-calc-row">
+            <span class="auto-calc-label">損切り価格（−5%）</span>
+            <span>
+              <span class="auto-calc-val neg" id="calc-stop">—</span>
+              <button class="apply-btn" onclick="applyCalc('stop')">適用</button>
+            </span>
+          </div>
+          <div class="auto-calc-row">
+            <span class="auto-calc-label">利確①価格（+7%）</span>
+            <span>
+              <span class="auto-calc-val pos" id="calc-target">—</span>
+              <button class="apply-btn" onclick="applyCalc('target')">適用</button>
+            </span>
+          </div>
+          <div class="auto-calc-row">
+            <span class="auto-calc-label">最大損失額</span>
+            <span class="auto-calc-val" id="calc-maxloss">—</span>
+          </div>
+          <div class="auto-calc-row">
+            <span class="auto-calc-label">損失上限（¥30,000）に対して</span>
+            <span class="auto-calc-val" id="calc-risk">—</span>
+          </div>
+        </div>
+
+        <!-- EXIT PLAN -->
+        <div class="form-section-label">📋 出口計画（エントリー時に決める）</div>
+        <div class="form-group">
+          <label>目標価格（利確）</label>
+          <input type="number" id="f-target" placeholder="自動計算 or 手入力" min="0">
+        </div>
+        <div class="form-group">
+          <label>撤退価格（ストップ）</label>
+          <input type="number" id="f-stop" placeholder="自動計算 or 手入力" min="0">
+        </div>
+        <div class="form-group">
+          <label>最大保有日数</label>
+          <input type="number" id="f-maxdays" placeholder="30" min="1" value="30">
+        </div>
+
+        <!-- CHECKLIST -->
+        <div class="checklist">
+          <div class="checklist-title">✅ エントリー前チェックリスト</div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">損切り価格を決めた（買値 −5% = ストップ価格）</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">目標価格を決めた（買値 +7% = 利確①）</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">1回の損失が ¥30,000 以内に収まる株数か確認した</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">決算発表日を確認した（30日以内に決算がないか）</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">エントリー理由が明確か（なんとなくで買っていない）</div>
+          </div>
+          <div class="checklist-progress" id="checkProgress">0 / 5 完了</div>
+        </div>
+
+        <div class="form-group wide" style="padding-top:4px">
+          <label style="margin-bottom:10px;display:block">ルールを守れましたか？（決済後に記録）</label>
+          <div class="rule-btn-group">
+            <button type="button" class="rule-btn" id="rb-ok" onclick="setRule('ok')">✓ 守れた</button>
+            <button type="button" class="rule-btn" id="rb-ng" onclick="setRule('ng')">✗ 守れなかった</button>
+            <button type="button" class="rule-btn sel-na" id="rb-na" onclick="setRule('na')">— 未決済</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addTrade()">記録する</button>
+        <button class="btn btn-ghost" onclick="clearForm()">クリア</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="panel" id="panel-history">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="card-title" style="margin-bottom:0">取引履歴</div>
+        <div class="data-actions">
+          <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;" onclick="exportData()">💾 エクスポート</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px;" onclick="document.getElementById('importFile').click()">📂 インポート</button>
+          <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+        </div>
+      </div>
+      <div id="historyWrap">
+        <div class="empty"><div class="empty-icon">📭</div>取引データがありません</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+let trades = JSON.parse(localStorage.getItem('tradelog_v1') || '[]');
+let pnlChart = null;
+
+function save() {
+  localStorage.setItem('tradelog_v1', JSON.stringify(trades));
+}
+
+// ===== UTILS =====
+function fmtYen(n) {
+  if (isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  const fmt = abs >= 10000
+    ? (abs / 10000).toFixed(1) + '万'
+    : abs.toLocaleString();
+  return (n >= 0 ? '+¥' : '-¥') + fmt;
+}
+
+function fmtYenFull(n) {
+  if (isNaN(n)) return '—';
+  return (n >= 0 ? '+' : '') + '¥' + n.toLocaleString();
+}
+
+function calcPnl(t) {
+  return (t.sellPrice - t.buyPrice) * t.shares;
+}
+
+function holdDays(t) {
+  const d = (new Date(t.sellDate) - new Date(t.buyDate)) / 86400000;
+  return Math.round(d);
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ===== TAB =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['dashboard','entry','history'][i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'history') renderHistory();
+}
+
+// ===== FORM =====
+let selectedRule = 'na';
+
+function setRule(val) {
+  selectedRule = val;
+  ['ok','ng','na'].forEach(v => {
+    const btn = document.getElementById('rb-' + v);
+    btn.className = 'rule-btn' + (v === val ? ' sel-' + v : '');
+  });
+}
+
+function updateCalc() {
+  const price  = parseFloat(document.getElementById('f-buyprice').value);
+  const shares = parseInt(document.getElementById('f-shares').value);
+  const box    = document.getElementById('autoCalc');
+
+  if (!price || price <= 0) { box.classList.remove('visible'); return; }
+  box.classList.add('visible');
+
+  const stopPrice   = Math.round(price * 0.95);
+  const targetPrice = Math.round(price * 1.07);
+
+  document.getElementById('calc-stop').textContent   = '¥' + stopPrice.toLocaleString();
+  document.getElementById('calc-target').textContent = '¥' + targetPrice.toLocaleString();
+
+  if (shares && shares > 0) {
+    const maxLoss = (price - stopPrice) * shares;
+    const riskEl  = document.getElementById('calc-risk');
+    document.getElementById('calc-maxloss').textContent = '¥' + maxLoss.toLocaleString();
+    if (maxLoss <= 30000) {
+      riskEl.textContent = '✓ OK';
+      riskEl.style.color = 'var(--green)';
+    } else {
+      const safeShares = Math.floor(30000 / (price - stopPrice));
+      riskEl.textContent = '⚠ 超過 → 推奨: ' + safeShares + '株以下';
+      riskEl.style.color = 'var(--red)';
+    }
+  } else {
+    document.getElementById('calc-maxloss').textContent = '—';
+    document.getElementById('calc-risk').textContent    = '—';
+    document.getElementById('calc-risk').style.color    = '';
+  }
+}
+
+function applyCalc(type) {
+  const price = parseFloat(document.getElementById('f-buyprice').value);
+  if (!price) return;
+  if (type === 'stop')   document.getElementById('f-stop').value   = Math.round(price * 0.95);
+  if (type === 'target') document.getElementById('f-target').value = Math.round(price * 1.07);
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const box = el.querySelector('.check-box');
+  box.textContent = el.classList.contains('checked') ? '✓' : '';
+  const total   = document.querySelectorAll('.check-item').length;
+  const checked = document.querySelectorAll('.check-item.checked').length;
+  document.getElementById('checkProgress').textContent = checked + ' / ' + total + ' 完了';
+  document.getElementById('checkProgress').style.color = checked === total ? 'var(--green)' : 'var(--muted)';
+}
+
+function clearForm() {
+  ['ticker','name','buydate','buyprice','selldate','sellprice','shares','memo','target','stop'].forEach(id => {
+    document.getElementById('f-' + id).value = '';
+  });
+  document.getElementById('f-maxdays').value = '30';
+  document.getElementById('f-tag').value = '';
+  document.querySelectorAll('.check-item').forEach(el => {
+    el.classList.remove('checked');
+    el.querySelector('.check-box').textContent = '';
+  });
+  document.getElementById('checkProgress').textContent = '0 / 5 完了';
+  document.getElementById('checkProgress').style.color = '';
+  document.getElementById('autoCalc').classList.remove('visible');
+  setRule('na');
+}
+
+function addTrade() {
+  const ticker    = document.getElementById('f-ticker').value.trim();
+  const name      = document.getElementById('f-name').value.trim();
+  const buyDate   = document.getElementById('f-buydate').value;
+  const buyPrice  = parseFloat(document.getElementById('f-buyprice').value);
+  const sellDate  = document.getElementById('f-selldate').value;
+  const sellPrice = parseFloat(document.getElementById('f-sellprice').value);
+  const shares    = parseInt(document.getElementById('f-shares').value);
+  const tag       = document.getElementById('f-tag').value;
+  const memo      = document.getElementById('f-memo').value.trim();
+  const target    = parseFloat(document.getElementById('f-target').value) || null;
+  const stop      = parseFloat(document.getElementById('f-stop').value) || null;
+  const maxdays   = parseInt(document.getElementById('f-maxdays').value) || null;
+  const rule      = selectedRule;
+
+  if (!ticker || !buyDate || !sellDate || isNaN(buyPrice) || isNaN(sellPrice) || isNaN(shares)) {
+    toast('⚠ 必須項目を入力してください');
+    return;
+  }
+
+  trades.push({ id: Date.now(), ticker, name, buyDate, buyPrice, sellDate, sellPrice, shares, tag, memo, target, stop, maxdays, rule });
+  trades.sort((a, b) => new Date(a.sellDate) - new Date(b.sellDate));
+  save();
+  clearForm();
+  toast('✓ 記録しました');
+  switchTab('dashboard');
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const closed = trades;
+  const total = closed.reduce((s, t) => s + calcPnl(t), 0);
+  const wins  = closed.filter(t => calcPnl(t) > 0);
+  const loses = closed.filter(t => calcPnl(t) <= 0);
+  const wr    = closed.length ? (wins.length / closed.length * 100).toFixed(1) + '%' : '—';
+  const avg   = closed.length ? total / closed.length : null;
+  const grossWin  = wins.reduce((s, t) => s + calcPnl(t), 0);
+  const grossLoss = Math.abs(loses.reduce((s, t) => s + calcPnl(t), 0));
+  const pf    = grossLoss ? (grossWin / grossLoss).toFixed(2) : wins.length ? '∞' : '—';
+  const maxWin  = wins.length  ? Math.max(...wins.map(t => calcPnl(t)))  : null;
+  const maxLoss = loses.length ? Math.min(...loses.map(t => calcPnl(t))) : null;
+
+  // Header
+  const htotal = document.getElementById('h-total');
+  htotal.textContent = fmtYen(total);
+  htotal.className = 'hstat-value ' + (total > 0 ? 'pos' : total < 0 ? 'neg' : 'neu');
+  document.getElementById('h-winrate').textContent = wr;
+  document.getElementById('h-count').textContent = closed.length;
+
+  // Stats
+  const dtotal = document.getElementById('d-total');
+  dtotal.textContent = fmtYenFull(total);
+  dtotal.className = 'stat-box-value ' + (total > 0 ? 'pos' : total < 0 ? 'neg' : 'neu');
+  document.getElementById('d-winrate').textContent = wr;
+  const davg = document.getElementById('d-avg');
+  davg.textContent = avg !== null ? fmtYenFull(Math.round(avg)) : '—';
+  davg.className = 'stat-box-value ' + (avg > 0 ? 'pos' : avg < 0 ? 'neg' : 'neu');
+  document.getElementById('d-pf').textContent = pf;
+  document.getElementById('d-maxwin').textContent  = maxWin  !== null ? fmtYenFull(maxWin)  : '—';
+  document.getElementById('d-maxloss').textContent = maxLoss !== null ? fmtYenFull(maxLoss) : '—';
+
+  // Rule compliance
+  const ruleOk = closed.filter(t => t.rule === 'ok').length;
+  const ruleNg = closed.filter(t => t.rule === 'ng').length;
+  const ruleTotal = ruleOk + ruleNg;
+  const compEl = document.getElementById('d-compliance');
+  if (ruleTotal === 0) {
+    compEl.textContent = '—';
+    compEl.className = 'stat-box-value neu';
+  } else {
+    const pct = (ruleOk / ruleTotal * 100).toFixed(0);
+    compEl.textContent = pct + '%';
+    compEl.className = 'stat-box-value ' + (pct >= 70 ? 'pos' : pct >= 40 ? 'neu' : 'neg');
+  }
+
+  // Chart
+  renderChart(closed);
+
+  // Tag stats
+  renderTagStats(closed);
+}
+
+function renderChart(closed) {
+  const ctx = document.getElementById('pnlChart').getContext('2d');
+
+  let cum = 0;
+  const labels = [];
+  const data   = [];
+  const colors = [];
+
+  if (closed.length === 0) {
+    labels.push('');
+    data.push(0);
+    colors.push('rgba(0,212,160,0.8)');
+  } else {
+    closed.forEach((t, i) => {
+      cum += calcPnl(t);
+      labels.push(t.sellDate.slice(5) + ' ' + t.ticker);
+      data.push(cum);
+      colors.push(cum >= 0 ? 'rgba(0,212,160,0.85)' : 'rgba(255,69,96,0.85)');
+    });
+  }
+
+  if (pnlChart) pnlChart.destroy();
+
+  pnlChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderRadius: 2,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => fmtYenFull(ctx.raw)
+          },
+          backgroundColor: '#181c22',
+          borderColor: '#1f2530',
+          borderWidth: 1,
+          titleColor: '#e2e8f0',
+          bodyColor: '#00d4a0',
+          titleFont: { family: 'Space Mono' },
+          bodyFont:  { family: 'Space Mono' },
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#64748b', font: { family: 'Space Mono', size: 10 }, maxRotation: 45 },
+          grid: { color: '#1f2530' }
+        },
+        y: {
+          ticks: {
+            color: '#64748b',
+            font: { family: 'Space Mono', size: 10 },
+            callback: v => fmtYen(v)
+          },
+          grid: { color: '#1f2530' }
+        }
+      }
+    }
+  });
+}
+
+function renderTagStats(closed) {
+  const wrap = document.getElementById('tagStats');
+  if (closed.length === 0) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>取引データがありません</div>';
+    return;
+  }
+
+  const byTag = {};
+  closed.forEach(t => {
+    const tag = t.tag || 'タグなし';
+    if (!byTag[tag]) byTag[tag] = [];
+    byTag[tag].push(t);
+  });
+
+  wrap.innerHTML = '';
+  Object.entries(byTag).sort((a, b) => b[1].length - a[1].length).forEach(([tag, ts]) => {
+    const wins  = ts.filter(t => calcPnl(t) > 0).length;
+    const wr    = (wins / ts.length * 100).toFixed(0);
+    const total = ts.reduce((s, t) => s + calcPnl(t), 0);
+    const color = wr >= 60 ? '#00d4a0' : wr >= 40 ? '#ffd166' : '#ff4560';
+
+    const div = document.createElement('div');
+    div.className = 'tag-stat';
+    div.innerHTML = `
+      <div class="tag-name"># ${tag}</div>
+      <div class="tag-bar-wrap">
+        <div class="tag-bar" style="width:${wr}%;background:${color}"></div>
+      </div>
+      <div class="tag-details">
+        <span style="color:${color};font-weight:700">${wr}% 勝率</span>
+        <span>${wins}勝${ts.length - wins}敗</span>
+        <span style="color:${total>=0?'#00d4a0':'#ff4560'}">${fmtYen(total)}</span>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+// ===== HISTORY =====
+function renderHistory() {
+  const wrap = document.getElementById('historyWrap');
+  if (trades.length === 0) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>取引データがありません</div>';
+    return;
+  }
+
+  const rows = [...trades].reverse().map(t => {
+    const pnl  = calcPnl(t);
+    const days = holdDays(t);
+    const cls  = pnl > 0 ? 'pos' : pnl < 0 ? 'neg' : 'neu';
+    const ruleBadge = t.rule === 'ok'
+      ? '<span class="compliance-badge badge-ok">✓ 守れた</span>'
+      : t.rule === 'ng'
+      ? '<span class="compliance-badge badge-ng">✗ 守れず</span>'
+      : '<span class="compliance-badge badge-na">—</span>';
+    const plan = [];
+    if (t.target)  plan.push(`利確 ¥${t.target.toLocaleString()}`);
+    if (t.stop)    plan.push(`撤退 ¥${t.stop.toLocaleString()}`);
+    if (t.maxdays) plan.push(`最大 ${t.maxdays}日`);
+    const planStr = plan.length ? `<div class="plan-row" style="margin-top:4px;font-size:10px">${plan.join(' / ')}</div>` : '';
+    return `<tr>
+      <td class="ticker-cell">${t.ticker}<br><span style="font-size:11px;color:var(--muted);font-family:var(--sans)">${t.name||''}</span></td>
+      <td style="font-family:var(--mono);font-size:12px">${t.buyDate}<br><span style="color:var(--muted)">${t.sellDate}</span></td>
+      <td style="font-family:var(--mono)">¥${t.buyPrice.toLocaleString()}<br><span style="color:var(--muted)">¥${t.sellPrice.toLocaleString()}</span></td>
+      <td style="font-family:var(--mono);color:var(--muted)">${t.shares}株<br>${days}日</td>
+      <td class="pnl-cell ${cls}">${fmtYenFull(pnl)}</td>
+      <td>${t.tag ? `<span class="tag-badge">${t.tag}</span>` : ''}${planStr}</td>
+      <td style="text-align:center">${ruleBadge}</td>
+      <td><button class="btn btn-danger" onclick="deleteTrade(${t.id})">削除</button></td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <table class="trade-table">
+      <thead>
+        <tr>
+          <th>銘柄</th>
+          <th>買い / 売り日</th>
+          <th>単価</th>
+          <th>株数 / 日数</th>
+          <th>損益</th>
+          <th>戦略 / 計画</th>
+          <th>ルール</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function deleteTrade(id) {
+  if (!confirm('この取引を削除しますか？')) return;
+  trades = trades.filter(t => t.id !== id);
+  save();
+  renderHistory();
+  renderDashboard();
+  toast('🗑 削除しました');
+}
+
+// ===== IMPORT / EXPORT =====
+function exportData() {
+  const blob = new Blob([JSON.stringify(trades, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tradelog_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  toast('💾 エクスポートしました');
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try {
+      const imported = JSON.parse(evt.target.result);
+      if (!Array.isArray(imported)) throw new Error();
+      trades = imported;
+      save();
+      renderHistory();
+      renderDashboard();
+      toast('✓ インポート完了 (' + imported.length + '件)');
+    } catch {
+      toast('⚠ ファイルが正しくありません');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ===== INIT =====
+renderDashboard();
+</script>
+</body>
+</html>
