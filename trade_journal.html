@@ -1643,32 +1643,28 @@ async function saveJquants() {
 }
 
 async function jqGetIdToken(refreshToken) {
-  const res = await fetch(`https://api.jquants.com/v1/token/auth_refresh?refreshtoken=${refreshToken}`, {
-    method: 'POST'
-  });
-  if (!res.ok) throw new Error('refresh failed');
-  const j = await res.json();
-  return j.idToken;
+  // V2 APIではAPIキーをそのままBearerトークンとして使用
+  return refreshToken;
 }
 
 async function refreshStockCache() {
-  const refreshToken = localStorage.getItem('jq_refresh');
-  if (!refreshToken) { toast('⚠ 先にJ-Quantsを設定してください'); return; }
+  const apiKey = localStorage.getItem('jq_refresh');
+  if (!apiKey) { toast('⚠ 先にJ-Quantsを設定してください'); return; }
   const cacheEl = document.getElementById('jqCacheInfo');
   if (cacheEl) cacheEl.textContent = '取得中…';
   try {
-    const idToken = await jqGetIdToken(refreshToken);
-    // Fetch all listed stocks
-    const res = await fetch('https://api.jquants.com/v1/listed/info', {
-      headers: { Authorization: `Bearer ${idToken}` }
+    // V2 API: /v2/equities/master でAPIキーをBearerトークンとして使用
+    const res = await fetch('https://api.jquants.com/v2/equities/master', {
+      headers: { Authorization: `Bearer ${apiKey}` }
     });
-    if (!res.ok) throw new Error('listed failed');
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
     const json = await res.json();
-    // info array: {Code, CompanyName, MarketCodeName, ...}
-    const list = (json.info || []).map(s => ({
-      code: s.Code ? s.Code.slice(0,4) : '',  // 5桁コードの先頭4桁
+    // V2レスポンス: {equities: [{Code, CompanyName, MarketCodeName, ...}]}
+    const items = json.equities || json.info || [];
+    const list = items.map(s => ({
+      code: (s.Code || '').slice(0, 4),
       name: s.CompanyName || s.CompanyNameEnglish || '',
-      market: s.MarketCodeName || ''
+      market: s.MarketCodeName || s.MarketCode || ''
     })).filter(s => s.code && s.name);
     stockCache = list;
     localStorage.setItem('jq_cache', JSON.stringify({ ts: Date.now(), list }));
@@ -1676,9 +1672,8 @@ async function refreshStockCache() {
     if (cacheEl) cacheEl.textContent = `✓ ${list.length}銘柄取得済み（${dateStr}）`;
     toast(`✓ ${list.length}銘柄を取得しました`);
   } catch(e) {
-    if (cacheEl) cacheEl.textContent = '取得失敗';
+    if (cacheEl) cacheEl.textContent = '取得失敗：' + e.message;
     toast('⚠ 銘柄データの取得に失敗しました');
-    // Fall back to static list
     buildCacheFromStatic();
   }
 }
