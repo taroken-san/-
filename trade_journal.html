@@ -606,6 +606,87 @@
     text-align: right;
   }
 
+  /* AUTOCOMPLETE */
+  .search-wrap { position: relative; grid-column: 1 / -1; }
+  .suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface2);
+    border: 1px solid var(--accent2);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 200;
+    display: none;
+  }
+  .suggestions.open { display: block; }
+  .suggestion-item {
+    padding: 9px 12px;
+    cursor: pointer;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.active { background: rgba(0,153,255,0.1); }
+  .sug-code { font-family: var(--mono); color: var(--accent2); font-size: 13px; font-weight: 700; min-width: 44px; }
+  .sug-name { font-size: 13px; color: var(--text); }
+  .sug-sector { font-size: 10px; color: var(--muted); margin-left: auto; font-family: var(--mono); }
+
+  /* SYNC STATUS */
+  .sync-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .sync-ok   { background: rgba(0,212,160,0.1);  color: var(--green); border: 1px solid rgba(0,212,160,0.3); }
+  .sync-err  { background: rgba(255,69,96,0.1);   color: var(--red);   border: 1px solid rgba(255,69,96,0.3); }
+  .sync-ing  { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  /* SETTINGS */
+  .settings-section { margin-bottom: 20px; }
+  .settings-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 10px;
+  }
+  .settings-row .form-group { flex: 1; margin: 0; }
+  .settings-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .settings-desc a { color: var(--accent2); }
+  .settings-status {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    margin-top: 8px;
+  }
+
   /* SECTION DIVIDER IN FORM */
   .form-section-label {
     grid-column: 1 / -1;
@@ -634,6 +715,10 @@
 <header>
   <div class="logo">TRADE<span>_LOG</span></div>
   <div class="header-stats">
+    <div class="hstat" id="syncStatus" style="display:none">
+      <div class="hstat-label">GIST SYNC</div>
+      <div id="syncBadge" class="sync-badge sync-ing">— 未設定</div>
+    </div>
     <div class="hstat">
       <div class="hstat-label">累積損益</div>
       <div class="hstat-value" id="h-total">¥0</div>
@@ -653,6 +738,7 @@
   <div class="tab active" onclick="switchTab('dashboard')">📊 ダッシュボード</div>
   <div class="tab" onclick="switchTab('entry')">＋ 取引入力</div>
   <div class="tab" onclick="switchTab('history')">📋 履歴</div>
+  <div class="tab" onclick="switchTab('settings')">⚙ 設定</div>
 </div>
 
 <div class="container">
@@ -726,13 +812,19 @@
       </div>
 
       <div class="form-grid">
-        <div class="form-group">
-          <label>銘柄コード</label>
-          <input type="text" id="f-ticker" placeholder="例: 7203" maxlength="8">
+        <!-- STOCK SEARCH -->
+        <div class="search-wrap">
+          <label style="font-size:11px;color:var(--muted);font-family:var(--mono);letter-spacing:1px;display:block;margin-bottom:6px">銘柄を検索（名前 or コード）</label>
+          <input type="text" id="f-search" placeholder="例: トヨタ　または　7203" oninput="searchStock(this.value)" onkeydown="searchKeydown(event)" autocomplete="off" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:var(--sans);font-size:14px;padding:8px 10px;outline:none;" onfocus="this.style.borderColor='var(--accent2)'" onblur="setTimeout(()=>closeSuggestions(),200)">
+          <div id="stockSuggestions" class="suggestions"></div>
         </div>
         <div class="form-group">
-          <label>銘柄名（任意）</label>
-          <input type="text" id="f-name" placeholder="例: トヨタ自動車">
+          <label>銘柄コード</label>
+          <input type="text" id="f-ticker" placeholder="自動入力 or 手入力" maxlength="8" style="background:rgba(0,153,255,0.05)">
+        </div>
+        <div class="form-group">
+          <label>銘柄名</label>
+          <input type="text" id="f-name" placeholder="自動入力 or 手入力">
         </div>
         <div class="form-group">
           <label>買い日</label>
@@ -873,9 +965,84 @@
     </div>
   </div>
 
-</div>
+  <!-- SETTINGS -->
+  <div class="panel" id="panel-settings">
+    <div class="card">
 
-<div class="toast" id="toast"></div>
+      <!-- J-QUANTS -->
+      <div class="settings-section">
+        <div class="settings-section-title">🔍 J-Quants API（全銘柄検索）</div>
+        <div class="settings-desc">
+          JPX公式の無料APIです。設定すると東証全約<b>3,900銘柄</b>を名前・コードで検索できます。<br><br>
+          <b>登録手順：</b><br>
+          <a href="https://jpx-jquants.com/" target="_blank">jpx-jquants.com</a> で無料アカウント登録
+          → メールアドレスとパスワードを下に入力 → 接続
+        </div>
+        <div class="settings-row">
+          <div class="form-group">
+            <label>メールアドレス</label>
+            <input type="email" id="s-jq-email" placeholder="登録メールアドレス">
+          </div>
+          <div class="form-group">
+            <label>パスワード</label>
+            <input type="password" id="s-jq-pass" placeholder="パスワード">
+          </div>
+          <button class="btn btn-primary" onclick="saveJquants()" style="flex-shrink:0;white-space:nowrap">接続</button>
+        </div>
+        <div id="jqStatusMsg" class="settings-status" style="display:none"></div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" style="font-size:11px" onclick="refreshStockCache()">🔄 銘柄データを更新</button>
+          <span id="jqCacheInfo" style="font-family:var(--mono);font-size:11px;color:var(--muted);align-self:center"></span>
+        </div>
+      </div>
+
+      <!-- GIST -->
+      <div class="settings-section">
+        <div class="settings-section-title">☁ GitHub Gist 自動バックアップ</div>
+        <div class="settings-desc">
+          取引を記録・削除するたびに<b>GitHub Gist</b>へ自動保存します。<br>
+          一度設定すれば全デバイスで同じデータを使えます。<br><br>
+          <b>PAT（Personal Access Token）の作成手順：</b><br>
+          <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a> を開く
+          → Note に「trade-journal」と入力
+          → Expiration を「No expiration」
+          → Scopes で「<b>gist</b>」にチェック
+          → Generate token → コピーして下に貼り付け
+        </div>
+        <div class="settings-row">
+          <div class="form-group">
+            <label>GitHub Personal Access Token</label>
+            <input type="password" id="s-pat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()" style="flex-shrink:0;white-space:nowrap">保存・接続</button>
+        </div>
+        <div id="gistStatusMsg" class="settings-status" style="display:none"></div>
+        <div class="settings-row" style="margin-top:8px">
+          <div class="form-group">
+            <label>Gist ID（自動入力）</label>
+            <input type="text" id="s-gistid" placeholder="初回保存時に自動生成されます" readonly style="opacity:0.6">
+          </div>
+          <button class="btn btn-ghost" onclick="forceSyncToGist()" style="flex-shrink:0;white-space:nowrap">🔄 今すぐ同期</button>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" style="font-size:11px" onclick="loadFromGist()">⬇ Gistから読み込む</button>
+          <button class="btn btn-danger" style="font-size:11px" onclick="clearSettings()">設定をリセット</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">💾 手動バックアップ</div>
+        <div class="settings-desc">Gistが使えない環境向け。JSONファイルをダウンロード・アップロードできます。</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="exportData()">💾 JSONエクスポート</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('importFile2').click()">📂 JSONインポート</button>
+          <input type="file" id="importFile2" accept=".json" onchange="importData(event)" style="display:none">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
 // ===== DATA =====
@@ -884,6 +1051,7 @@ let pnlChart = null;
 
 function save() {
   localStorage.setItem('tradelog_v1', JSON.stringify(trades));
+  autoSyncToGist();
 }
 
 // ===== UTILS =====
@@ -920,12 +1088,13 @@ function toast(msg) {
 // ===== TAB =====
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['dashboard','entry','history'][i] === name);
+    t.classList.toggle('active', ['dashboard','entry','history','settings'][i] === name);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   if (name === 'dashboard') renderDashboard();
-  if (name === 'history') renderHistory();
+  if (name === 'history')   renderHistory();
+  if (name === 'settings')  renderSettings();
 }
 
 // ===== FORM =====
@@ -993,6 +1162,7 @@ function clearForm() {
   ['ticker','name','buydate','buyprice','selldate','sellprice','shares','memo','target','stop'].forEach(id => {
     document.getElementById('f-' + id).value = '';
   });
+  document.getElementById('f-search').value  = '';
   document.getElementById('f-maxdays').value = '30';
   document.getElementById('f-tag').value = '';
   document.querySelectorAll('.check-item').forEach(el => {
@@ -1287,8 +1457,416 @@ function importData(e) {
   e.target.value = '';
 }
 
+// ===== STOCK DATABASE =====
+const STOCKS = [
+  // 宇宙・JAXA
+  ['9348','ispace','宇宙'],['5595','QPS研究所','宇宙'],['186A','アストロスケールHD','宇宙'],
+  ['7011','三菱重工業','宇宙/防衛'],['7012','川崎重工業','宇宙/防衛'],['7013','IHI','宇宙/防衛'],
+  ['6503','三菱電機','宇宙/電機'],['6701','NEC','宇宙/IT'],['6702','富士通','HPCI/IT'],
+  ['6355','住友精密工業','宇宙'],
+  // 医療・バイオ
+  ['4519','中外製薬','医療'],['4503','アステラス製薬','医療'],['4502','武田薬品工業','医療'],
+  ['4523','エーザイ','医療'],['4568','第一三共','医療'],['4578','大塚ホールディングス','医療'],
+  ['4507','塩野義製薬','医療'],['4151','協和キリン','医療'],['4528','小野薬品工業','医療'],
+  ['4506','住友ファーマ','医療'],['4516','日本新薬','医療'],['4536','参天製薬','医療'],
+  ['4543','テルモ','医療機器'],['4548','生化学工業','医療'],['6869','シスメックス','医療機器'],
+  ['4901','富士フイルムHD','医療/素材'],['4118','カネカ','医療/素材'],['3101','東洋紡','医療/素材'],
+  ['6501','日立製作所','医療/IT'],
+  // HPCI・AI
+  ['8035','東京エレクトロン','半導体'],['3778','さくらインターネット','クラウド'],
+  ['5801','古河電気工業','インフラ'],['5631','日本製鋼所','素材'],
+  ['6857','アドバンテスト','半導体'],['6146','ディスコ','半導体'],
+  ['6963','ローム','半導体'],['8227','しまむら','—'],
+  // 防衛
+  ['6302','住友重機械工業','防衛'],['7752','リコー','防衛/IT'],
+  ['6954','ファナック','ロボット'],['6506','安川電機','ロボット'],
+  ['6861','キーエンス','FA'],['6971','京セラ','電子部品'],
+  ['4004','レゾナック','素材'],['5019','出光興産','エネルギー'],
+  // 自動車
+  ['7203','トヨタ自動車','自動車'],['7267','本田技研工業','自動車'],
+  ['7201','日産自動車','自動車'],['7261','マツダ','自動車'],
+  ['7269','スズキ','自動車'],['7270','SUBARU','自動車'],
+  ['7202','いすゞ自動車','自動車'],['7211','三菱自動車工業','自動車'],
+  ['7272','ヤマハ発動機','自動車'],['6902','デンソー','自動車部品'],
+  ['7259','アイシン','自動車部品'],['7240','NOK','自動車部品'],
+  // 電機・IT
+  ['6758','ソニーグループ','電機'],['6752','パナソニックHD','電機'],
+  ['6753','シャープ','電機'],['6367','ダイキン工業','電機'],
+  ['6770','アルプスアルパイン','電子部品'],['6762','TDK','電子部品'],
+  ['6472','NTN','機械'],['6473','ジェイテクト','機械'],
+  ['7751','キヤノン','精密機器'],['7741','HOYA','精密機器'],
+  ['7733','オリンパス','精密機器'],['4902','コニカミノルタ','精密機器'],
+  // 通信・IT
+  ['9984','ソフトバンクグループ','通信'],['9434','ソフトバンク','通信'],
+  ['9432','日本電信電話','通信'],['9433','KDDI','通信'],
+  ['9437','NTTドコモ','通信'],['4755','楽天グループ','IT'],
+  ['3661','エムスリー','医療IT'],['4689','LINEヤフー','IT'],
+  ['4307','野村総合研究所','IT'],['9613','NTTデータグループ','IT'],
+  ['2432','ディー・エヌ・エー','IT'],['3765','ガンホー','ゲーム'],
+  ['9766','コナミグループ','ゲーム'],['7974','任天堂','ゲーム'],
+  ['9697','カプコン','ゲーム'],['3659','ネクソン','ゲーム'],
+  // 金融
+  ['8306','三菱UFJフィナンシャルG','銀行'],['8316','三井住友FG','銀行'],
+  ['8411','みずほFG','銀行'],['8308','りそなHD','銀行'],
+  ['8309','三井住友トラストHD','銀行'],['8354','ふくおかFG','銀行'],
+  ['8591','オリックス','金融'],['8697','日本取引所グループ','金融'],
+  ['8750','第一生命HD','保険'],['8725','MS&ADインシュアランス','保険'],
+  ['8766','東京海上HD','保険'],['8630','SOMPOホールディングス','保険'],
+  // 商社
+  ['8058','三菱商事','商社'],['8031','三井物産','商社'],
+  ['8001','伊藤忠商事','商社'],['8053','住友商事','商社'],
+  ['8002','丸紅','商社'],['8015','豊田通商','商社'],
+  // 鉄鋼・素材
+  ['5401','日本製鉄','鉄鋼'],['5411','JFEホールディングス','鉄鋼'],
+  ['5406','神戸製鋼所','鉄鋼'],['4063','信越化学工業','化学'],
+  ['4183','三井化学','化学'],['4188','三菱ケミカルG','化学'],
+  ['4005','住友化学','化学'],['4021','日産化学','化学'],
+  ['3407','旭化成','化学'],['4208','宇部興産','化学'],
+  // エネルギー
+  ['5020','ENEOSホールディングス','エネルギー'],['1605','INPEX','エネルギー'],
+  ['9501','東京電力HD','電力'],['9502','中部電力','電力'],
+  ['9503','関西電力','電力'],['9531','東京ガス','ガス'],
+  ['9532','大阪ガス','ガス'],
+  // 建設・不動産
+  ['1802','大林組','建設'],['1803','清水建設','建設'],
+  ['1801','大成建設','建設'],['1812','鹿島建設','建設'],
+  ['8801','三井不動産','不動産'],['8802','菱地所','不動産'],
+  ['8830','住友不動産','不動産'],['3003','ヒューリック','不動産'],
+  // 小売・消費
+  ['3382','セブン&アイHD','小売'],['9983','ファーストリテイリング','小売'],
+  ['8267','イオン','小売'],['3099','三越伊勢丹HD','小売'],
+  ['9843','ニトリHD','小売'],['2651','ローソン','小売'],
+  ['2702','マクドナルドHD','外食'],['2753','あみやき亭','外食'],
+  // 輸送・物流
+  ['9020','東日本旅客鉄道','輸送'],['9022','東海旅客鉄道','輸送'],
+  ['9048','名古屋鉄道','輸送'],['9001','東武鉄道','輸送'],
+  ['9064','ヤマトHD','物流'],['9147','NIPPON EXPRESS HD','物流'],
+  ['9101','日本郵船','海運'],['9104','商船三井','海運'],
+  ['9107','川崎汽船','海運'],
+  // その他
+  ['4324','電通グループ','広告'],['6098','リクルートHD','HR'],
+  ['7832','バンダイナムコHD','玩具'],['4452','花王','日用品'],
+  ['4911','資生堂','化粧品'],['2914','JT','食品'],
+  ['2503','キリンHD','食品'],['2502','アサヒグループHD','食品'],
+  ['2801','キッコーマン','食品'],['2802','味の素','食品'],
+];
+
+// ===== AUTOCOMPLETE =====
+let sugIdx = -1;
+// stockCache: [{code, name, market}] — populated from J-Quants or static fallback
+let stockCache = [];
+
+function buildCacheFromStatic() {
+  stockCache = STOCKS.map(([code, name, sector]) => ({ code, name, market: sector || '' }));
+}
+
+function searchStock(val) {
+  const box = document.getElementById('stockSuggestions');
+  sugIdx = -1;
+  if (!val || val.length < 1) { box.classList.remove('open'); return; }
+  const src = stockCache.length > 0 ? stockCache : STOCKS.map(([c,n,s])=>({code:c,name:n,market:s}));
+  const q = val;
+  const matches = src.filter(s =>
+    s.code.startsWith(q) || s.name.includes(q)
+  ).slice(0, 14);
+  if (matches.length === 0) { box.classList.remove('open'); return; }
+  box.innerHTML = matches.map(s =>
+    `<div class="suggestion-item" data-code="${s.code}" data-name="${s.name}" onmousedown="selectStock('${s.code}','${escHtml(s.name)}')">
+      <span class="sug-code">${s.code}</span>
+      <span class="sug-name">${s.name}</span>
+      <span class="sug-sector">${s.market||''}</span>
+    </div>`
+  ).join('');
+  box.classList.add('open');
+}
+
+function escHtml(s) { return s.replace(/'/g, "\\'"); }
+
+function searchKeydown(e) {
+  const box = document.getElementById('stockSuggestions');
+  const items = box.querySelectorAll('.suggestion-item');
+  if (!box.classList.contains('open')) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    sugIdx = Math.min(sugIdx + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === sugIdx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    sugIdx = Math.max(sugIdx - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('active', i === sugIdx));
+  } else if (e.key === 'Enter' && sugIdx >= 0) {
+    e.preventDefault();
+    const active = items[sugIdx];
+    if (active) selectStock(active.dataset.code, active.dataset.name);
+  } else if (e.key === 'Escape') {
+    closeSuggestions();
+  }
+}
+
+function selectStock(code, name) {
+  document.getElementById('f-ticker').value = code;
+  document.getElementById('f-name').value   = name;
+  document.getElementById('f-search').value = name + '　' + code;
+  closeSuggestions();
+}
+
+function closeSuggestions() {
+  document.getElementById('stockSuggestions').classList.remove('open');
+  sugIdx = -1;
+}
+
+// ===== J-QUANTS API =====
+async function saveJquants() {
+  const email = document.getElementById('s-jq-email').value.trim();
+  const pass  = document.getElementById('s-jq-pass').value;
+  if (!email || !pass) { toast('⚠ メールアドレスとパスワードを入力してください'); return; }
+  const msgEl = document.getElementById('jqStatusMsg');
+  msgEl.style.display = '';
+  msgEl.style.background = 'rgba(100,116,139,0.1)';
+  msgEl.style.color = 'var(--muted)';
+  msgEl.textContent = '認証中…';
+  try {
+    const refreshToken = await jqGetRefreshToken(email, pass);
+    localStorage.setItem('jq_email', email);
+    localStorage.setItem('jq_refresh', refreshToken);
+    msgEl.style.background = 'rgba(0,212,160,0.08)';
+    msgEl.style.color = 'var(--green)';
+    msgEl.textContent = '✓ 認証成功　→ 銘柄データを取得中…';
+    await refreshStockCache();
+    msgEl.textContent = '✓ 設定完了　全銘柄データ取得済み';
+    toast('✓ J-Quants 接続完了');
+  } catch(e) {
+    msgEl.style.background = 'rgba(255,69,96,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '✗ 認証失敗：メールアドレスまたはパスワードが正しくありません';
+  }
+}
+
+async function jqGetRefreshToken(email, pass) {
+  const res = await fetch('https://api.jquants.com/v1/token/auth_user', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mailaddress: email, password: pass })
+  });
+  if (!res.ok) throw new Error('auth failed');
+  const j = await res.json();
+  return j.refreshToken;
+}
+
+async function jqGetIdToken(refreshToken) {
+  const res = await fetch(`https://api.jquants.com/v1/token/auth_refresh?refreshtoken=${refreshToken}`, {
+    method: 'POST'
+  });
+  if (!res.ok) throw new Error('refresh failed');
+  const j = await res.json();
+  return j.idToken;
+}
+
+async function refreshStockCache() {
+  const refreshToken = localStorage.getItem('jq_refresh');
+  if (!refreshToken) { toast('⚠ 先にJ-Quantsを設定してください'); return; }
+  const cacheEl = document.getElementById('jqCacheInfo');
+  if (cacheEl) cacheEl.textContent = '取得中…';
+  try {
+    const idToken = await jqGetIdToken(refreshToken);
+    // Fetch all listed stocks
+    const res = await fetch('https://api.jquants.com/v1/listed/info', {
+      headers: { Authorization: `Bearer ${idToken}` }
+    });
+    if (!res.ok) throw new Error('listed failed');
+    const json = await res.json();
+    // info array: {Code, CompanyName, MarketCodeName, ...}
+    const list = (json.info || []).map(s => ({
+      code: s.Code ? s.Code.slice(0,4) : '',  // 5桁コードの先頭4桁
+      name: s.CompanyName || s.CompanyNameEnglish || '',
+      market: s.MarketCodeName || ''
+    })).filter(s => s.code && s.name);
+    stockCache = list;
+    localStorage.setItem('jq_cache', JSON.stringify({ ts: Date.now(), list }));
+    const dateStr = new Date().toLocaleDateString('ja-JP');
+    if (cacheEl) cacheEl.textContent = `✓ ${list.length}銘柄取得済み（${dateStr}）`;
+    toast(`✓ ${list.length}銘柄を取得しました`);
+  } catch(e) {
+    if (cacheEl) cacheEl.textContent = '取得失敗';
+    toast('⚠ 銘柄データの取得に失敗しました');
+    // Fall back to static list
+    buildCacheFromStatic();
+  }
+}
+
+function loadStockCacheFromStorage() {
+  const raw = localStorage.getItem('jq_cache');
+  if (!raw) { buildCacheFromStatic(); return; }
+  try {
+    const { ts, list } = JSON.parse(raw);
+    stockCache = list;
+    const age  = (Date.now() - ts) / 86400000;
+    const cacheEl = document.getElementById('jqCacheInfo');
+    const dateStr = new Date(ts).toLocaleDateString('ja-JP');
+    if (cacheEl) cacheEl.textContent = `✓ ${list.length}銘柄（${dateStr}取得）${age > 7 ? ' ⚠ 1週間以上経過' : ''}`;
+  } catch { buildCacheFromStatic(); }
+}
+
+// ===== GITHUB GIST =====
+let gistSyncing = false;
+
+function setSyncBadge(state, msg) {
+  const badge = document.getElementById('syncBadge');
+  const wrap  = document.getElementById('syncStatus');
+  wrap.style.display = '';
+  badge.className = 'sync-badge sync-' + state;
+  badge.textContent = msg;
+}
+
+async function autoSyncToGist() {
+  const pat = localStorage.getItem('gist_pat');
+  if (!pat) return;
+  if (gistSyncing) return;
+  gistSyncing = true;
+  setSyncBadge('ing', '⟳ 同期中…');
+  try {
+    await _gistSave(pat);
+    setSyncBadge('ok', '✓ 同期済み ' + new Date().toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'}));
+  } catch(e) {
+    setSyncBadge('err', '✗ 同期失敗');
+  }
+  gistSyncing = false;
+}
+
+async function forceSyncToGist() {
+  const pat = localStorage.getItem('gist_pat');
+  if (!pat) { toast('⚠ PATを設定してください'); switchTab('settings'); return; }
+  gistSyncing = false;
+  await autoSyncToGist();
+  toast('🔄 Gistへ同期しました');
+}
+
+async function _gistSave(pat) {
+  const content = JSON.stringify(trades, null, 2);
+  const gistId  = localStorage.getItem('gist_id');
+  if (gistId) {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      method: 'PATCH',
+      headers: { Authorization: `token ${pat}`, 'Content-Type': 'application/json', 'X-GitHub-Api-Version': '2022-11-28' },
+      body: JSON.stringify({ files: { 'tradelog.json': { content } } })
+    });
+    if (!res.ok) throw new Error('patch failed');
+  } else {
+    const res = await fetch('https://api.github.com/gists', {
+      method: 'POST',
+      headers: { Authorization: `token ${pat}`, 'Content-Type': 'application/json', 'X-GitHub-Api-Version': '2022-11-28' },
+      body: JSON.stringify({ description: 'Trade Journal Backup', public: false, files: { 'tradelog.json': { content } } })
+    });
+    if (!res.ok) throw new Error('create failed');
+    const json = await res.json();
+    localStorage.setItem('gist_id', json.id);
+    document.getElementById('s-gistid').value = json.id;
+  }
+}
+
+async function loadFromGist() {
+  const pat    = localStorage.getItem('gist_pat');
+  const gistId = localStorage.getItem('gist_id');
+  if (!pat || !gistId) { toast('⚠ PATとGist IDが必要です'); return; }
+  setSyncBadge('ing', '⟳ 読み込み中…');
+  try {
+    const res  = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { Authorization: `token ${pat}`, 'X-GitHub-Api-Version': '2022-11-28' }
+    });
+    const json = await res.json();
+    const content = json.files?.['tradelog.json']?.content;
+    if (!content) throw new Error('no file');
+    trades = JSON.parse(content);
+    localStorage.setItem('tradelog_v1', JSON.stringify(trades));
+    setSyncBadge('ok', '✓ 読み込み済み');
+    renderDashboard();
+    toast('✓ Gistからデータを読み込みました (' + trades.length + '件)');
+  } catch(e) {
+    setSyncBadge('err', '✗ 読み込み失敗');
+    toast('⚠ 読み込みに失敗しました');
+  }
+}
+
+async function saveSettings() {
+  const pat = document.getElementById('s-pat').value.trim();
+  if (!pat) { toast('⚠ PATを入力してください'); return; }
+  const msgEl = document.getElementById('gistStatusMsg');
+  msgEl.style.display = '';
+  msgEl.style.background = 'rgba(100,116,139,0.1)';
+  msgEl.style.color = 'var(--muted)';
+  msgEl.textContent = '接続確認中…';
+  try {
+    const res = await fetch('https://api.github.com/user', {
+      headers: { Authorization: `token ${pat}`, 'X-GitHub-Api-Version': '2022-11-28' }
+    });
+    if (!res.ok) throw new Error('auth failed');
+    const user = await res.json();
+    localStorage.setItem('gist_pat', pat);
+    msgEl.style.background = 'rgba(0,212,160,0.08)';
+    msgEl.style.color = 'var(--green)';
+    msgEl.textContent = '✓ 接続成功：' + user.login + '　→ 次回の記録から自動バックアップが始まります';
+    document.getElementById('syncStatus').style.display = '';
+    setSyncBadge('ok', '✓ 接続済み');
+    toast('✓ GitHub Gist設定完了');
+  } catch(e) {
+    msgEl.style.background = 'rgba(255,69,96,0.08)';
+    msgEl.style.color = 'var(--red)';
+    msgEl.textContent = '✗ 接続失敗：PATが正しいか、gistスコープがあるか確認してください';
+  }
+}
+
+function renderSettings() {
+  const pat    = localStorage.getItem('gist_pat') || '';
+  const gistId = localStorage.getItem('gist_id')  || '';
+  if (pat) {
+    document.getElementById('s-pat').value    = pat;
+    document.getElementById('s-gistid').value = gistId;
+    const msgEl = document.getElementById('gistStatusMsg');
+    msgEl.style.display    = '';
+    msgEl.style.background = 'rgba(0,212,160,0.08)';
+    msgEl.style.color      = 'var(--green)';
+    msgEl.textContent      = '✓ PAT設定済み　自動バックアップ有効';
+  }
+  // J-Quants status
+  const jqEmail = localStorage.getItem('jq_email') || '';
+  if (jqEmail) document.getElementById('s-jq-email').value = jqEmail;
+  const raw = localStorage.getItem('jq_cache');
+  const cacheEl = document.getElementById('jqCacheInfo');
+  if (raw && cacheEl) {
+    try {
+      const { ts, list } = JSON.parse(raw);
+      const dateStr = new Date(ts).toLocaleDateString('ja-JP');
+      const age = (Date.now() - ts) / 86400000;
+      cacheEl.textContent = `✓ ${list.length}銘柄（${dateStr}取得）${age > 7 ? ' ⚠ 1週間以上経過' : ''}`;
+      const jqMsg = document.getElementById('jqStatusMsg');
+      if (jqMsg) {
+        jqMsg.style.display = '';
+        jqMsg.style.background = 'rgba(0,212,160,0.08)';
+        jqMsg.style.color = 'var(--green)';
+        jqMsg.textContent = `✓ J-Quants 設定済み　${list.length}銘柄対応`;
+      }
+    } catch {}
+  }
+}
+
+function clearSettings() {
+  if (!confirm('Gist設定をリセットしますか？（ローカルのデータは消えません）')) return;
+  localStorage.removeItem('gist_pat');
+  localStorage.removeItem('gist_id');
+  document.getElementById('s-pat').value    = '';
+  document.getElementById('s-gistid').value = '';
+  document.getElementById('gistStatusMsg').style.display = 'none';
+  document.getElementById('syncStatus').style.display = 'none';
+  toast('設定をリセットしました');
+}
+
 // ===== INIT =====
+loadStockCacheFromStorage();
 renderDashboard();
+if (localStorage.getItem('gist_pat')) {
+  document.getElementById('syncStatus').style.display = '';
+  setSyncBadge('ok', '✓ 接続済み');
+}
 </script>
 </body>
 </html>
