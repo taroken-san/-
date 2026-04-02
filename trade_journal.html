@@ -974,20 +974,17 @@
         <div class="settings-section-title">🔍 J-Quants API（全銘柄検索）</div>
         <div class="settings-desc">
           JPX公式の無料APIです。設定すると東証全約<b>3,900銘柄</b>を名前・コードで検索できます。<br><br>
-          <b>登録手順：</b><br>
-          <a href="https://jpx-jquants.com/" target="_blank">jpx-jquants.com</a> で無料アカウント登録
-          → メールアドレスとパスワードを下に入力 → 接続
+          <b>リフレッシュトークンの取得手順：</b><br>
+          <a href="https://jpx-jquants.com/" target="_blank">jpx-jquants.com</a> にログイン
+          → 左メニュー「<b>API Keys</b>」→ APIキーを発行・コピー
+          → 下に貼り付けて「接続」
         </div>
         <div class="settings-row">
           <div class="form-group">
-            <label>メールアドレス</label>
-            <input type="email" id="s-jq-email" placeholder="登録メールアドレス">
+            <label>リフレッシュトークン（API Key）</label>
+            <input type="password" id="s-jq-token" placeholder="取得したAPIキーを貼り付け">
           </div>
-          <div class="form-group">
-            <label>パスワード</label>
-            <input type="password" id="s-jq-pass" placeholder="パスワード">
-          </div>
-          <button class="btn btn-primary" onclick="saveJquants()" style="flex-shrink:0;white-space:nowrap">接続</button>
+          <button class="btn btn-primary" onclick="saveJquantsToken()" style="flex-shrink:0;white-space:nowrap">接続</button>
         </div>
         <div id="jqStatusMsg" class="settings-status" style="display:none"></div>
         <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
@@ -1616,41 +1613,33 @@ function closeSuggestions() {
 }
 
 // ===== J-QUANTS API =====
-async function saveJquants() {
-  const email = document.getElementById('s-jq-email').value.trim();
-  const pass  = document.getElementById('s-jq-pass').value;
-  if (!email || !pass) { toast('⚠ メールアドレスとパスワードを入力してください'); return; }
+async function saveJquantsToken() {
+  const token = document.getElementById('s-jq-token').value.trim();
+  if (!token) { toast('⚠ リフレッシュトークンを入力してください'); return; }
   const msgEl = document.getElementById('jqStatusMsg');
   msgEl.style.display = '';
   msgEl.style.background = 'rgba(100,116,139,0.1)';
   msgEl.style.color = 'var(--muted)';
-  msgEl.textContent = '認証中…';
+  msgEl.textContent = '接続確認中…';
   try {
-    const refreshToken = await jqGetRefreshToken(email, pass);
-    localStorage.setItem('jq_email', email);
-    localStorage.setItem('jq_refresh', refreshToken);
+    // リフレッシュトークンを保存してIDトークン取得を試みる
+    localStorage.setItem('jq_refresh', token);
+    await refreshStockCache();
     msgEl.style.background = 'rgba(0,212,160,0.08)';
     msgEl.style.color = 'var(--green)';
-    msgEl.textContent = '✓ 認証成功　→ 銘柄データを取得中…';
-    await refreshStockCache();
-    msgEl.textContent = '✓ 設定完了　全銘柄データ取得済み';
+    msgEl.textContent = '✓ 接続成功　全銘柄データ取得済み';
     toast('✓ J-Quants 接続完了');
   } catch(e) {
+    localStorage.removeItem('jq_refresh');
     msgEl.style.background = 'rgba(255,69,96,0.08)';
     msgEl.style.color = 'var(--red)';
-    msgEl.textContent = '✗ 認証失敗：メールアドレスまたはパスワードが正しくありません';
+    msgEl.textContent = '✗ 接続失敗：トークンが正しいか確認してください';
   }
 }
 
-async function jqGetRefreshToken(email, pass) {
-  const res = await fetch('https://api.jquants.com/v1/token/auth_user', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mailaddress: email, password: pass })
-  });
-  if (!res.ok) throw new Error('auth failed');
-  const j = await res.json();
-  return j.refreshToken;
+async function saveJquants() {
+  // 旧メソッド（後方互換用）→ saveJquantsTokenに委譲
+  await saveJquantsToken();
 }
 
 async function jqGetIdToken(refreshToken) {
@@ -1828,8 +1817,11 @@ function renderSettings() {
     msgEl.textContent      = '✓ PAT設定済み　自動バックアップ有効';
   }
   // J-Quants status
-  const jqEmail = localStorage.getItem('jq_email') || '';
-  if (jqEmail) document.getElementById('s-jq-email').value = jqEmail;
+  const jqToken = localStorage.getItem('jq_refresh') || '';
+  if (jqToken) {
+    const tokenEl = document.getElementById('s-jq-token');
+    if (tokenEl) tokenEl.value = jqToken;
+  }
   const raw = localStorage.getItem('jq_cache');
   const cacheEl = document.getElementById('jqCacheInfo');
   if (raw && cacheEl) {
