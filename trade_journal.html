@@ -8,17 +8,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0a0c0f;
-    --surface: #111418;
-    --surface2: #1c2128;
-    --border: #2a3441;
-    --accent: #00d4a0;
-    --accent2: #0099ff;
-    --red: #ff4560;
-    --green: #00d4a0;
-    --yellow: #ffd166;
-    --text: #f1f5f9;
-    --muted: #94a3b8;
+    --bg: #f0f4f8;
+    --surface: #ffffff;
+    --surface2: #f8fafc;
+    --border: #dde3ea;
+    --accent: #00a87d;
+    --accent2: #0077cc;
+    --red: #e03050;
+    --green: #00a87d;
+    --yellow: #d4900a;
+    --text: #1a2332;
+    --muted: #5a6a7e;
     --mono: 'Space Mono', monospace;
     --sans: 'Noto Sans JP', sans-serif;
   }
@@ -29,7 +29,7 @@
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
-    font-size: 14px;
+    font-size: 16px;
     min-height: 100vh;
   }
 
@@ -341,7 +341,7 @@
   .ticker-cell {
     font-family: var(--mono);
     font-weight: 700;
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .pnl-cell {
@@ -455,8 +455,8 @@
 
   /* RULE HINT BOX */
   .rule-hint {
-    background: rgba(0,153,255,0.07);
-    border: 1px solid rgba(0,153,255,0.2);
+    background: rgba(0,119,204,0.06);
+    border: 1px solid rgba(0,119,204,0.2);
     border-radius: 4px;
     padding: 14px 16px;
     margin-bottom: 16px;
@@ -545,8 +545,8 @@
   /* CHECKLIST */
   .checklist {
     grid-column: 1 / -1;
-    background: rgba(255,209,102,0.05);
-    border: 1px solid rgba(255,209,102,0.2);
+    background: rgba(212,144,10,0.05);
+    border: 1px solid rgba(212,144,10,0.2);
     border-radius: 4px;
     padding: 14px 16px;
   }
@@ -1299,27 +1299,27 @@ function renderChart(closed) {
           callbacks: {
             label: ctx => fmtYenFull(ctx.raw)
           },
-          backgroundColor: '#181c22',
-          borderColor: '#1f2530',
+          backgroundColor: '#ffffff',
+          borderColor: '#dde3ea',
           borderWidth: 1,
-          titleColor: '#e2e8f0',
-          bodyColor: '#00d4a0',
+          titleColor: '#1a2332',
+          bodyColor: '#00a87d',
           titleFont: { family: 'Space Mono' },
           bodyFont:  { family: 'Space Mono' },
         }
       },
       scales: {
         x: {
-          ticks: { color: '#64748b', font: { family: 'Space Mono', size: 10 }, maxRotation: 45 },
-          grid: { color: '#1f2530' }
+          ticks: { color: '#5a6a7e', font: { family: 'Space Mono', size: 10 }, maxRotation: 45 },
+          grid: { color: '#dde3ea' }
         },
         y: {
           ticks: {
-            color: '#64748b',
+            color: '#5a6a7e',
             font: { family: 'Space Mono', size: 10 },
             callback: v => fmtYen(v)
           },
-          grid: { color: '#1f2530' }
+          grid: { color: '#dde3ea' }
         }
       }
     }
