@@ -1,0 +1,47 @@
+name: Update Stocks
+
+on:
+  schedule:
+    - cron: '0 1 1 * *'  # 毎月1日 午前1時（UTC）に実行
+  workflow_dispatch:       # 手動実行も可能
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Fetch stocks
+        env:
+          JQUANTS_API_KEY: ${{ secrets.JQUANTS_API_KEY }}
+        run: |
+          python3 - << 'EOF'
+          import requests, json, os
+          api_key = os.environ['JQUANTS_API_KEY']
+          res = requests.get(
+              'https://api.jquants.com/v2/equities/master',
+              headers={'x-api-key': api_key},
+              params={'date': '20260109'}
+          )
+          stocks = [
+              {'code': s['Code'][:4], 'name': s['CoName'], 'market': s.get('MktNm', '')}
+              for s in res.json().get('data', [])
+              if s.get('Code') and s.get('CoName')
+          ]
+          with open('stocks.json', 'w', encoding='utf-8') as f:
+              json.dump(stocks, f, ensure_ascii=False)
+          print(f'✓ {len(stocks)}銘柄を保存')
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stocks
+          path: stocks.json
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add stocks.json
+          git commit -m "Update stocks.json" || echo "No changes"
+          git push
