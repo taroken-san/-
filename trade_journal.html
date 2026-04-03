@@ -10,15 +10,15 @@
   :root {
     --bg: #0a0c0f;
     --surface: #111418;
-    --surface2: #181c22;
-    --border: #1f2530;
+    --surface2: #1c2128;
+    --border: #2a3441;
     --accent: #00d4a0;
     --accent2: #0099ff;
     --red: #ff4560;
     --green: #00d4a0;
     --yellow: #ffd166;
-    --text: #e2e8f0;
-    --muted: #64748b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
     --mono: 'Space Mono', monospace;
     --sans: 'Noto Sans JP', sans-serif;
   }
@@ -1041,6 +1041,8 @@
 
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 // ===== DATA =====
 let trades = JSON.parse(localStorage.getItem('tradelog_v1') || '[]');
@@ -1678,17 +1680,32 @@ async function refreshStockCache() {
   }
 }
 
-function loadStockCacheFromStorage() {
+async function loadStockCacheFromStorage() {
+  // まずlocalStorageのキャッシュを確認
   const raw = localStorage.getItem('jq_cache');
-  if (!raw) { buildCacheFromStatic(); return; }
+  if (raw) {
+    try {
+      const { ts, list } = JSON.parse(raw);
+      stockCache = list;
+      const age = (Date.now() - ts) / 86400000;
+      const cacheEl = document.getElementById('jqCacheInfo');
+      const dateStr = new Date(ts).toLocaleDateString('ja-JP');
+      if (cacheEl) cacheEl.textContent = `✓ ${list.length}銘柄（${dateStr}取得）${age > 30 ? ' ⚠ 更新推奨' : ''}`;
+      return;
+    } catch {}
+  }
+  // なければstocks.jsonを読み込む
   try {
-    const { ts, list } = JSON.parse(raw);
+    const res = await fetch('./stocks.json');
+    if (!res.ok) throw new Error('not found');
+    const list = await res.json();
     stockCache = list;
-    const age  = (Date.now() - ts) / 86400000;
-    const cacheEl = document.getElementById('jqCacheInfo');
-    const dateStr = new Date(ts).toLocaleDateString('ja-JP');
-    if (cacheEl) cacheEl.textContent = `✓ ${list.length}銘柄（${dateStr}取得）${age > 7 ? ' ⚠ 1週間以上経過' : ''}`;
-  } catch { buildCacheFromStatic(); }
+    localStorage.setItem('jq_cache', JSON.stringify({ ts: Date.now(), list }));
+    console.log(`✓ stocks.jsonから${list.length}銘柄を読み込みました`);
+  } catch {
+    buildCacheFromStatic();
+    console.log('stocks.json未取得のためフォールバックリストを使用');
+  }
 }
 
 // ===== GITHUB GIST =====
