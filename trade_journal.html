@@ -850,14 +850,30 @@
           <label>戦略タグ</label>
           <select id="f-tag">
             <option value="">— 選択 —</option>
-            <option value="トレンドフォロー">トレンドフォロー</option>
-            <option value="ブレイクアウト">ブレイクアウト</option>
-            <option value="平均回帰">平均回帰</option>
-            <option value="決算狙い">決算狙い</option>
+            <option value="保ち合い抜け">保ち合い抜け</option>
             <option value="押し目買い">押し目買い</option>
+            <option value="ブレイクアウト">ブレイクアウト</option>
+            <option value="決算狙い">決算狙い</option>
+            <option value="トレンドフォロー">トレンドフォロー</option>
             <option value="ショート">ショート</option>
             <option value="その他">その他</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label>狙いの種類</label>
+          <select id="f-aim">
+            <option value="">— 選択 —</option>
+            <option value="戻り狙い（直近高値まで）">戻り狙い（直近高値まで）</option>
+            <option value="高値更新狙い">高値更新狙い</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>直近高値（円）</label>
+          <input type="number" id="f-prevhigh" placeholder="例: 3200" min="0" oninput="updateCalc()">
+        </div>
+        <div class="form-group">
+          <label>決算発表日</label>
+          <input type="date" id="f-kessan">
         </div>
         <div class="form-group wide">
           <label>メモ（エントリー理由・反省など）</label>
@@ -889,6 +905,10 @@
             <span class="auto-calc-label">損失上限（¥30,000）に対して</span>
             <span class="auto-calc-val" id="calc-risk">—</span>
           </div>
+          <div class="auto-calc-row">
+            <span class="auto-calc-label">直近高値までの上値余地</span>
+            <span class="auto-calc-val" id="calc-uph">—</span>
+          </div>
         </div>
 
         <!-- EXIT PLAN -->
@@ -908,28 +928,57 @@
 
         <!-- CHECKLIST -->
         <div class="checklist">
-          <div class="checklist-title">✅ エントリー前チェックリスト</div>
+          <div class="checklist-title">✅ 銘柄選別チェックリスト</div>
+
+          <div style="font-size:11px;color:var(--yellow);font-family:var(--mono);letter-spacing:1px;padding:8px 0 4px;opacity:0.8">① チャート構造</div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <div class="check-text">損切り価格を決めた（買値 −5% = ストップ価格）</div>
+            <div class="check-text">上昇トレンド後の調整銘柄か（下落途中・乱高下ではない）</div>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <div class="check-text">目標価格を決めた（買値 +7% = 利確①）</div>
+            <div class="check-text">保ち合いに入っているか、押し安値を明確に割っていないか</div>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <div class="check-text">1回の損失が ¥30,000 以内に収まる株数か確認した</div>
+            <div class="check-text">直近高値がはっきりしていて、戻り目標として機能しやすいか</div>
+          </div>
+
+          <div style="font-size:11px;color:var(--yellow);font-family:var(--mono);letter-spacing:1px;padding:8px 0 4px;opacity:0.8">② 下値の強さ</div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">地合い悪化でも安値更新を避けているか、下げてもすぐ戻すか</div>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <div class="check-text">決算発表日を確認した（30日以内に決算がないか）</div>
+            <div class="check-text">出来高を伴う投げ売りが出ていないか</div>
+          </div>
+
+          <div style="font-size:11px;color:var(--yellow);font-family:var(--mono);letter-spacing:1px;padding:8px 0 4px;opacity:0.8">③ 決算・材料</div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">決算日を確認し、決算前か通過後かを判断した</div>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <div class="check-text">エントリー理由が明確か（なんとなくで買っていない）</div>
+            <div class="check-text">材料に継続性があるか（業績・需給・テーマのどれかが支え）</div>
           </div>
-          <div class="checklist-progress" id="checkProgress">0 / 5 完了</div>
+
+          <div style="font-size:11px;color:var(--yellow);font-family:var(--mono);letter-spacing:1px;padding:8px 0 4px;opacity:0.8">④ エントリー計画</div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">狙いを決めた（戻り狙い or 高値更新狙い）</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">損切り価格を決めた（買値 −5%）・1回の損失が¥30,000以内</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <div class="check-text">目標価格を決めた（戻り狙い=直近高値、高値更新=その先）</div>
+          </div>
+
+          <div class="checklist-progress" id="checkProgress">0 / 10 完了</div>
         </div>
 
         <div class="form-group wide" style="padding-top:4px">
@@ -1121,6 +1170,18 @@ function updateCalc() {
   document.getElementById('calc-stop').textContent   = '¥' + stopPrice.toLocaleString();
   document.getElementById('calc-target').textContent = '¥' + targetPrice.toLocaleString();
 
+  // 直近高値からの上値余地
+  const prevHigh = parseFloat(document.getElementById('f-prevhigh').value);
+  const uphRow = document.getElementById('calc-uph');
+  if (prevHigh && prevHigh > price) {
+    const upside = ((prevHigh - price) / price * 100).toFixed(1);
+    uphRow.textContent = '直近高値まで +' + upside + '%（¥' + prevHigh.toLocaleString() + '）';
+    uphRow.style.color = 'var(--accent2)';
+  } else if (uphRow) {
+    uphRow.textContent = '—';
+    uphRow.style.color = '';
+  }
+
   if (shares && shares > 0) {
     const maxLoss = (price - stopPrice) * shares;
     const riskEl  = document.getElementById('calc-risk');
@@ -1158,17 +1219,18 @@ function toggleCheck(el) {
 }
 
 function clearForm() {
-  ['ticker','name','buydate','buyprice','selldate','sellprice','shares','memo','target','stop'].forEach(id => {
+  ['ticker','name','buydate','buyprice','selldate','sellprice','shares','memo','target','stop','prevhigh','kessan'].forEach(id => {
     document.getElementById('f-' + id).value = '';
   });
   document.getElementById('f-search').value  = '';
   document.getElementById('f-maxdays').value = '30';
   document.getElementById('f-tag').value = '';
+  document.getElementById('f-aim').value = '';
   document.querySelectorAll('.check-item').forEach(el => {
     el.classList.remove('checked');
     el.querySelector('.check-box').textContent = '';
   });
-  document.getElementById('checkProgress').textContent = '0 / 5 完了';
+  document.getElementById('checkProgress').textContent = '0 / 10 完了';
   document.getElementById('checkProgress').style.color = '';
   document.getElementById('autoCalc').classList.remove('visible');
   setRule('na');
@@ -1183,6 +1245,9 @@ function addTrade() {
   const sellPrice = parseFloat(document.getElementById('f-sellprice').value);
   const shares    = parseInt(document.getElementById('f-shares').value);
   const tag       = document.getElementById('f-tag').value;
+  const aim       = document.getElementById('f-aim').value;
+  const prevHigh  = parseFloat(document.getElementById('f-prevhigh').value) || null;
+  const kessan    = document.getElementById('f-kessan').value || null;
   const memo      = document.getElementById('f-memo').value.trim();
   const target    = parseFloat(document.getElementById('f-target').value) || null;
   const stop      = parseFloat(document.getElementById('f-stop').value) || null;
@@ -1194,7 +1259,7 @@ function addTrade() {
     return;
   }
 
-  trades.push({ id: Date.now(), ticker, name, buyDate, buyPrice, sellDate, sellPrice, shares, tag, memo, target, stop, maxdays, rule });
+  trades.push({ id: Date.now(), ticker, name, buyDate, buyPrice, sellDate, sellPrice, shares, tag, aim, prevHigh, kessan, memo, target, stop, maxdays, rule });
   trades.sort((a, b) => new Date(a.sellDate) - new Date(b.sellDate));
   save();
   clearForm();
@@ -1382,6 +1447,8 @@ function renderHistory() {
       ? '<span class="compliance-badge badge-ng">✗ 守れず</span>'
       : '<span class="compliance-badge badge-na">—</span>';
     const plan = [];
+    if (t.aim)     plan.push(t.aim);
+    if (t.kessan)  plan.push(`決算 ${t.kessan}`);
     if (t.target)  plan.push(`利確 ¥${t.target.toLocaleString()}`);
     if (t.stop)    plan.push(`撤退 ¥${t.stop.toLocaleString()}`);
     if (t.maxdays) plan.push(`最大 ${t.maxdays}日`);
