@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ウクレレ教材 曲リスト（年代別）</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Shippori+Mincho:wght@400;600&display=swap');
+
+  :root {
+    --bg: #faf8f3;
+    --paper: #fffef9;
+    --ink: #1a1208;
+    --muted: #6b5f4a;
+    --accent: #8b6914;
+    --accent2: #c4893a;
+    --line: #d4c9a8;
+    --era-pre: #4a6741;
+    --era-30: #7a5c8a;
+    --era-40: #2a5f7a;
+    --era-50: #8a4a2a;
+    --era-60: #6a6a2a;
+    --era-70: #3a6a6a;
+    --era-80: #5a3a8a;
+    --era-90: #7a3a5a;
+    --era-00: #3a5a8a;
+    --era-10: #4a7a5a;
+    --era-western: #5a4a7a;
+    --era-folk: #6a4a3a;
+    --era-hawaii: #2a6a5a;
+    --era-child: #7a5a2a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Shippori Mincho', 'Noto Serif JP', serif;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--accent);
+    position: relative;
+  }
+
+  header::before {
+    content: '♪';
+    font-size: 1.2rem;
+    color: var(--accent2);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.8rem;
+    background: #f0ebe0;
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .era-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .era-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .era-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fff;
+    padding: 0.2rem 0.7rem;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .era-label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .era-count {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .song-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem 1rem;
+  }
+
+  .song-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    border-left: 2px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .song-item:hover {
+    background: #f0ebe0;
+  }
+
+  .song-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.45em;
+  }
+
+  .song-title {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .song-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  .filter-btn {
+    font-family: inherit;
+    font-size: 0.78rem;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .total-bar {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    text-align: right;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px dashed var(--line);
+    margin: 2rem 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>ウクレレ教材 曲リスト</h1>
+    <div class="subtitle">新教材・副教材・旧教材 統合版（重複除く）</div>
+    <div class="note">※ 年代は原曲の発表年・作曲年を基準。重複曲は代表的な収録箇所のみ掲載。</div>
+  </header>
+
+  <div class="filter-bar">
+    <span style="font-size:0.78rem;color:var(--muted);align-self:center;">表示：</span>
+    <button class="filter-btn active" onclick="filterEra('all')">すべて</button>
+    <button class="filter-btn" onclick="filterEra('pre-1920')">〜大正</button>
+    <button class="filter-btn" onclick="filterEra('1930s')">昭和10〜20年代</button>
+    <button class="filter-btn" onclick="filterEra('1940s')">昭和30年代</button>
+    <button class="filter-btn" onclick="filterEra('1950s')">昭和40年代</button>
+    <button class="filter-btn" onclick="filterEra('1960s')">昭和50〜60年代</button>
+    <button class="filter-btn" onclick="filterEra('1970s')">平成〜</button>
+    <button class="filter-btn" onclick="filterEra('western')">洋楽・外国曲</button>
+    <button class="filter-btn" onclick="filterEra('hawaii')">ハワイアン</button>
+    <button class="filter-btn" onclick="filterEra('folk')">童謡・唱歌</button>
+  </div>
+
+  <div class="total-bar">全 <strong id="visibleCount">81</strong> 曲</div>
+
+  <!-- 童謡・唱歌（明治〜大正） -->
+  <div class="era-section" data-era="folk">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-child);">童謡・唱歌</span>
+      <span class="era-label">明治〜大正（〜1926年）</span>
+      <span class="era-count">14曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">ふるさと<span class="song-sub">（1914年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">浜辺の歌<span class="song-sub">（1916年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">早春賦<span class="song-sub">（1913年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">月の砂漠<span class="song-sub">（1923年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">茶つみ<span class="song-sub">（唱歌）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">もみじ<span class="song-sub">（1911年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">おぼろ月夜<span class="song-sub">（1914年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">夏は来ぬ<span class="song-sub">（1896年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">故郷の空<span class="song-sub">（スコットランド民謡）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">村祭<span class="song-sub">（1912年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">冬景色<span class="song-sub">（1913年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">一月一日<span class="song-sub">（1893年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">旅愁<span class="song-sub">（米：1868年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-child)"></span><span class="song-title">かもめの水兵さん<span class="song-sub">（1937年）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 昭和10〜20年代 -->
+  <div class="era-section" data-era="1930s">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-30);">昭和</span>
+      <span class="era-label">昭和10〜20年代（1935〜1954年）</span>
+      <span class="era-count">8曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">りんごの唄<span class="song-sub">（1945年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">鈴懸の径<span class="song-sub">（1942年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">雪の降る町を<span class="song-sub">（1952年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">里の秋<span class="song-sub">（1945年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">冬の夜<span class="song-sub">（唱歌）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">花咲く旅路<span class="song-sub">（1950年代）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">さんぽ<span class="song-sub">（1988年・となりのトトロ）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-30)"></span><span class="song-title">うれしいひなまつり<span class="song-sub">（1936年）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 昭和30年代 -->
+  <div class="era-section" data-era="1940s">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-40);">昭和</span>
+      <span class="era-label">昭和30年代（1955〜1964年）</span>
+      <span class="era-count">8曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">恋のバカンス<span class="song-sub">（1963年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">見上げてごらん夜の星を<span class="song-sub">（1960年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">花<span class="song-sub">（喜納昌吉・1980年 ※原曲1967年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">君といつまでも<span class="song-sub">（1965年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">お嫁においで<span class="song-sub">（1966年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">北国の春<span class="song-sub">（1977年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">小さな世界<span class="song-sub">（米：1964年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-40)"></span><span class="song-title">燃えろよ燃えろ<span class="song-sub">（1961年）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 昭和40〜50年代フォーク -->
+  <div class="era-section" data-era="1950s">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-50);">昭和</span>
+      <span class="era-label">昭和40〜50年代（1965〜1979年）</span>
+      <span class="era-count">22曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">翼をください<span class="song-sub">（1971年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">野に咲く花のように<span class="song-sub">（1973年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">サボテンの花<span class="song-sub">（1975年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">ルージュの伝言<span class="song-sub">（1975年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">岬めぐり<span class="song-sub">（1974年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">コロラドの月<span class="song-sub">（1977年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">なごり雪<span class="song-sub">（1974年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">今日の日はさようなら<span class="song-sub">（1967年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">あの素晴らしい愛をもう一度<span class="song-sub">（1971年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">この広い野原いっぱい<span class="song-sub">（1967年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">コンドルは飛んで行く<span class="song-sub">（ペルー民謡・1970年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">春よ来い<span class="song-sub">（1994年・松任谷由実）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">知床旅情<span class="song-sub">（1960年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">卒業写真<span class="song-sub">（1975年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">想い出の渚<span class="song-sub">（1966年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">青葉城恋歌<span class="song-sub">（1978年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">北上夜曲<span class="song-sub">（1952年・ヒット1961年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">宗谷岬<span class="song-sub">（1977年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">おもいでのアルバム<span class="song-sub">（1977年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">いい日旅立ち<span class="song-sub">（1978年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">月見草の花<span class="song-sub">（1971年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-50)"></span><span class="song-title">なんとなくなんとなく<span class="song-sub">（1976年）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 昭和55〜平成初期 -->
+  <div class="era-section" data-era="1960s">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-60);">昭和〜平成</span>
+      <span class="era-label">昭和55年〜平成初期（1980〜1999年）</span>
+      <span class="era-count">13曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">瑠璃色の地球<span class="song-sub">（1986年・松田聖子）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">少年時代<span class="song-sub">（1990年・井上陽水）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">糸<span class="song-sub">（1992年・中島みゆき）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">島唄<span class="song-sub">（1992年・THE BOOM）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">木蘭の涙<span class="song-sub">（1994年・スターダスト・レビュー）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">空も飛べるはず<span class="song-sub">（1994年・スピッツ）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">デイ・ドリーム・ビリーバー<span class="song-sub">（1988年・忌野清志郎）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">川の流れのように<span class="song-sub">（1989年・美空ひばり）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">笑ったり転んだり<span class="song-sub">（1985年・小椋佳）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">乾杯<span class="song-sub">（1980年・長渕剛）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">コーヒールンバ<span class="song-sub">（ベネズエラ1958年・日本1961年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">マイウェイ<span class="song-sub">（仏1967年・英1969年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-60)"></span><span class="song-title">千の風になって<span class="song-sub">（2006年・秋川雅史）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 平成〜令和 -->
+  <div class="era-section" data-era="1970s">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-70);">平成〜令和</span>
+      <span class="era-label">平成12年以降（2000年〜）</span>
+      <span class="era-count">8曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">涙そうそう<span class="song-sub">（2001年・夏川りみ）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">また君に恋してる<span class="song-sub">（2007年・坂本冬美）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">いのちの歌<span class="song-sub">（2009年・竹内まりや）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">栄光の架橋<span class="song-sub">（2004年・ゆず）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">Let It Go<span class="song-sub">（2013年・アナと雪の女王）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">花祭り<span class="song-sub">（ハワイアン曲）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">クリスマス・イヴ<span class="song-sub">（1983年・山下達郎）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-70)"></span><span class="song-title">小さい秋見つけた<span class="song-sub">（1955年）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 洋楽・外国曲 -->
+  <div class="era-section" data-era="western">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-western);">洋楽</span>
+      <span class="era-label">洋楽・外国曲</span>
+      <span class="era-count">10曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">Moon River<span class="song-sub">（1961年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">HEY JUDE<span class="song-sub">（1968年・The Beatles）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">オー・シャンゼリゼ<span class="song-sub">（仏1971年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">パフ<span class="song-sub">（1963年・Peter,Paul&Mary）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">ダニーボーイ<span class="song-sub">（アイルランド民謡・1913年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">アニーローリー<span class="song-sub">（スコットランド民謡）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">野ばら（シューベルト）<span class="song-sub">（1815年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">野ばら（ウェルナー）<span class="song-sub">（1829年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">花はどこへ行った<span class="song-sub">（1955年・Pete Seeger）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-western)"></span><span class="song-title">What A Wonderful World<span class="song-sub">（1967年・Louis Armstrong）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ハワイアン -->
+  <div class="era-section" data-era="hawaii">
+    <div class="era-header">
+      <span class="era-badge" style="background:var(--era-hawaii);">ハワイアン</span>
+      <span class="era-label">ハワイアン・沖縄</span>
+      <span class="era-count">10曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">アロハオエ<span class="song-sub">（1878年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">カイマナヒラ<span class="song-sub">（ハワイ民謡）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">タフワフワイ<span class="song-sub">（ハワイ民謡）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">真珠貝の歌<span class="song-sub">（ハワイアン）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">珊瑚礁の彼方<span class="song-sub">（1927年・Beyond the Reef）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">プアリリレフア<span class="song-sub">（ハワイ民謡）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">パイナップルプリンセス<span class="song-sub">（米1960年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">BLUE HAWAII<span class="song-sub">（1961年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">Hawaii Aloha<span class="song-sub">（ハワイ民謡）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:var(--era-hawaii)"></span><span class="song-title">芭蕉布<span class="song-sub">（1972年・沖縄）</span></span></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- クリスマス・賛美歌 -->
+  <div class="era-section" data-era="folk">
+    <div class="era-header">
+      <span class="era-badge" style="background:#6a6a6a;">宗教・讃美歌</span>
+      <span class="era-label">クリスマス・讃美歌</span>
+      <span class="era-count">7曲</span>
+    </div>
+    <div class="song-grid">
+      <div class="song-item"><span class="song-dot" style="background:#6a6a6a"></span><span class="song-title">きよしこの夜<span class="song-sub">（1818年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:#6a6a6a"></span><span class="song-title">ジングルベル<span class="song-sub">（1857年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:#6a6a6a"></span><span class="song-title">荒野の果てに<span class="song-sub">（16世紀・賛美歌）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:#6a6a6a"></span><span class="song-title">諸人こぞりて<span class="song-sub">（1719年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:#6a6a6a"></span><span class="song-title">ウィンターワンダーランド<span class="song-sub">（1934年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:#6a6a6a"></span><span class="song-title">White Christmas<span class="song-sub">（1942年）</span></span></div>
+      <div class="song-item"><span class="song-dot" style="background:#6a6a6a"></span><span class="song-title">いつくしみ深き友なるイエスは<span class="song-sub">（1855年）</span></span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function filterEra(era) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const sections = document.querySelectorAll('.era-section');
+  let count = 0;
+
+  sections.forEach(sec => {
+    if (era === 'all' || sec.dataset.era === era) {
+      sec.style.display = '';
+      count += sec.querySelectorAll('.song-item').length;
+    } else {
+      sec.style.display = 'none';
+    }
+  });
+
+  document.getElementById('visibleCount').textContent = count;
+
+  document.querySelectorAll('.divider').forEach(d => {
+    d.style.display = era === 'all' ? '' : 'none';
+  });
+}
+
+// 初期カウント
+document.getElementById('visibleCount').textContent =
+  document.querySelectorAll('.song-item').length;
+</script>
+</body>
+</html>
