@@ -211,6 +211,50 @@
     color: var(--accent);
     border-bottom-color: var(--accent);
   }
+
+  .song-item {
+    align-items: flex-start;
+  }
+
+  .song-meta {
+    font-size: 0.67rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    line-height: 1.4;
+  }
+
+  .song-chords {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.02em;
+    color: #7a6a50;
+  }
+
+  .song-difficulty {
+    color: var(--accent2);
+    letter-spacing: 0.02em;
+  }
+
+  .ref-btn {
+    font-size: 0.63rem;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    padding: 0 0.3rem;
+    line-height: 1.5;
+    display: inline-block;
+    transition: all 0.15s;
+  }
+
+  .ref-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
 </style>
 </head>
 <body>
@@ -456,6 +500,10 @@
 </div>
 
 <script>
+// ---- コード・難易度データ ----
+const SONG_META = {"さんぽ": {"chords": ["C", "F", "G7", "Am", "Dm", "Em7", "Fm", "D7"], "difficulty": 2}, "なんとなくなんとなく": {"chords": ["G", "C", "D", "Em", "B7", "A7"], "difficulty": 2}, "一月一日": {"chords": ["C", "G7", "F"], "difficulty": 1}, "乾杯": {"chords": ["C", "Am", "F", "Dm", "G7", "C7"], "difficulty": 1}, "今日の日はさようなら": {"chords": ["C", "F", "Am", "Dm", "G7"], "difficulty": 1}, "冬の夜": {"chords": ["C", "G7"], "difficulty": 1}, "北上夜曲": {"chords": ["Cm", "G7", "Fm"], "difficulty": 3}, "北国の春": {"chords": ["C", "G7", "F", "Am"], "difficulty": 1}, "卒業写真": {"chords": ["F", "G7", "CM7", "Am", "D7", "Dm", "C", "C7", "Em7", "Em"], "difficulty": 3}, "夏は来ぬ": {"chords": ["C", "F", "G7"], "difficulty": 2}, "月の砂漠": {"chords": ["Am", "E7", "Dm"], "difficulty": 2}, "月見草の花": {"chords": ["Cm", "G7", "Fm"], "difficulty": 3}, "木蘭の涙": {"chords": ["Am", "F", "G7", "Em7", "C", "Dm", "Am7"], "difficulty": 2}, "村祭": {"chords": ["C", "G7", "F", "Am"], "difficulty": 1}, "燃えろよ燃えろ": {"chords": ["F", "Bb", "C7"], "difficulty": 2}, "珊瑚礁の彼方": {"chords": ["Dm", "G7", "C", "C7", "F", "A7"], "difficulty": 2}, "瑠璃色の地球": {"chords": ["C", "C7", "F", "Fm", "G7", "Em7", "Am", "Dm", "D7", "E7", "A7", "Gsus4", "Csus4", "Cadd9"], "difficulty": 3}, "糸": {"chords": ["C", "Csus4", "F", "Am", "Em7", "G7", "Am7", "AmM7", "D7", "E7"], "difficulty": 2}, "花": {"chords": ["C", "Am", "G7", "F", "Dm", "Em"], "difficulty": 1}, "茶つみ": {"chords": ["C", "G", "F", "Am", "Dm"], "difficulty": 1}, "荒野の果てに": {"chords": ["F", "C", "Gm", "C7", "G7"], "difficulty": 2}, "鈴懸の径": {"chords": ["Dm", "A7", "D7", "Gm", "E7", "Bb"], "difficulty": 3}, "雪の降る町を": {"chords": ["Am", "F", "E7", "Dm", "A", "D", "F#m"], "difficulty": 3}, "Moon River": {"chords": ["C", "Am", "F", "Dm", "E7", "C7", "Bb", "D7", "G7", "Em7", "A7", "Am7"], "difficulty": 3}, "White Christmas": {"chords": ["C", "Dm", "D7", "G7", "F", "Fm", "C7"], "difficulty": 3}, "いい日旅立ち": {"chords": ["Dm", "A7", "D7", "Gm", "C", "F", "E7"], "difficulty": 2}, "おぼろ月夜": {"chords": ["C", "G7", "F"], "difficulty": 1}, "おもいでのアルバム": {"chords": ["C", "F", "G7", "C7"], "difficulty": 1}, "お嫁においで": {"chords": ["F", "A7", "Bb", "D7", "Gm", "C7", "F7", "Bbm", "G7", "C", "F6"], "difficulty": 3}, "きよしこの夜": {"chords": ["C", "G7", "F"], "difficulty": 1}, "この広い野原いっぱい": {"chords": ["F", "Am", "Bb", "C7", "Bbm"], "difficulty": 2}, "なごり雪": {"chords": ["G", "D", "Em", "C", "D7", "B7", "A7"], "difficulty": 2}, "ふるさと": {"chords": ["C", "G7", "F"], "difficulty": 1}, "また君に恋してる": {"chords": ["Am", "Am7", "Dm", "F", "G7", "CM7", "BbM7", "B7", "E7", "Em7", "G"], "difficulty": 3}, "もみじ": {"chords": ["G", "D", "Em", "D7"], "difficulty": 1}, "りんごの唄": {"chords": ["Am", "E7", "Dm"], "difficulty": 1}, "アニーローリー": {"chords": ["F", "G7", "C", "D7", "Gsus4", "G", "Caug", "Am", "Dm", "E7"], "difficulty": 3}, "アロハオエ": {"chords": ["G", "C", "D7", "A7"], "difficulty": 1}, "ウィンターワンダーランド": {"chords": ["G", "G7", "D7", "C", "Em7", "A7", "F"], "difficulty": 2}, "オー・シャンゼリゼ": {"chords": ["C", "E7", "Am", "C7", "F", "Dm", "G7"], "difficulty": 2}, "カイマナヒラ": {"chords": ["G", "C", "D7"], "difficulty": 1}, "クリスマス・イヴ": {"chords": ["C", "G7", "Am", "Em7", "F", "Dm", "Cadd9"], "difficulty": 2}, "コロラドの月": {"chords": ["C", "F", "G", "G7", "C7", "Am", "D7"], "difficulty": 2}, "コーヒールンバ": {"chords": ["Dm", "Gm", "A7", "C7", "E7"], "difficulty": 3}, "サボテンの花": {"chords": ["C", "F", "Em7", "Am", "Dm", "G7", "A7"], "difficulty": 2}, "ジングルベル": {"chords": ["C", "F", "G7"], "difficulty": 1}, "タフワフワイ": {"chords": ["C", "F", "G7"], "difficulty": 1}, "ダニーボーイ": {"chords": ["C", "Am", "F", "Dm", "G7", "Em7"], "difficulty": 2}, "デイ・ドリーム・ビリーバー": {"chords": ["C", "F", "G7", "Am", "Dm", "Em7", "D7"], "difficulty": 2}, "パイナップルプリンセス": {"chords": ["F", "F6", "Dm", "Bb", "C7", "F7"], "difficulty": 2}, "パフ": {"chords": ["C", "Em", "F", "G", "G7", "Am", "D"], "difficulty": 2}, "プアリリレフア": {"chords": ["F", "A7", "Dm", "Bb", "C7", "G7", "F7", "F6"], "difficulty": 2}, "マイウェイ": {"chords": ["C", "Em7", "A7", "Dm", "G7", "CM7", "C7", "C#dim", "F", "Fm", "Am"], "difficulty": 3}, "ルージュの伝言": {"chords": ["G", "Em", "Em7", "C", "D", "D7"], "difficulty": 1}, "冬景色": {"chords": ["C", "F", "G7"], "difficulty": 1}, "千の風になって": {"chords": ["C", "G7", "Am", "F", "Dm"], "difficulty": 1}, "君といつまでも": {"chords": ["G", "Bm", "C", "D7", "Am", "A", "Em", "Cm", "A7"], "difficulty": 3}, "小さな世界": {"chords": ["G", "G7", "C", "Cm", "D7"], "difficulty": 2}, "岬めぐり": {"chords": ["C", "Am", "Dm", "E7", "Em", "F", "G7"], "difficulty": 2}, "恋のバカンス": {"chords": ["Em", "Am7", "B7", "E7", "F#7", "G", "C", "C#m7-5", "Cmaj7", "Em6"], "difficulty": 3}, "花祭り": {"chords": ["C", "F", "G", "E7", "Am", "D7"], "difficulty": 2}, "見上げてごらん夜の星を": {"chords": ["C", "A7", "Dm", "F", "G7", "Em7", "D7", "C#dim", "E7", "Am", "G"], "difficulty": 3}, "諸人こぞりて": {"chords": ["C", "G", "F"], "difficulty": 1}, "里の秋": {"chords": ["C", "F", "G7"], "difficulty": 1}, "野に咲く花のように": {"chords": ["C", "Dm", "G7", "F", "Em7", "D7"], "difficulty": 2}, "野ばら（ウェルナー）": {"chords": ["C", "G7", "F", "Am"], "difficulty": 1}, "野ばら（シューベルト）": {"chords": ["C", "G7", "D7", "G", "Am", "Dm", "F"], "difficulty": 2}, "青葉城恋歌": {"chords": ["G", "C", "D7"], "difficulty": 1}, "涙そうそう": {"chords": ["C", "G", "F", "A7", "Dm", "G7", "C7", "Em7"], "difficulty": 2}, "コンドルは飛んで行く": {"chords": ["Dm", "F", "Bb"], "difficulty": 2}, "BLUE HAWAII": {"chords": ["G", "G7", "C", "E7", "A7", "D7", "D7+5"], "difficulty": 2}, "HEY JUDE": {"chords": ["C", "G7", "G7sus4", "F", "Am", "Dm", "Dm7", "C7", "Bb"], "difficulty": 2}, "Hawaii Aloha": {"chords": ["C", "F", "G7", "Cadd9", "G7(9)"], "difficulty": 2}, "Let It Go": {"chords": ["Gm", "EbM7", "F", "Csus4", "Cm", "C", "Eb", "Bb", "Dm", "Db"], "difficulty": 3}, "What A Wonderful World": {"chords": ["C", "Em", "F", "Dm", "E7", "Am", "G7", "G", "A7", "Bbm7", "Dm7", "CM7"], "difficulty": 3}, "あの素晴らしい愛をもう一度": {"chords": ["C", "Em", "F", "G", "Am", "G7", "Dm", "D7", "E7"], "difficulty": 2}, "いつくしみ深き友なるイエスは": {"chords": ["C", "F", "G7"], "difficulty": 1}, "いのちの歌": {"chords": ["C", "F", "Fm", "G7", "G7sus4", "Am", "Am7", "Dm", "Em7", "E7", "E7sus4", "D7", "Csus4"], "difficulty": 2}, "うれしいひなまつり": {"chords": ["Am", "Dm", "E7", "Am7"], "difficulty": 1}, "かもめの水兵さん": {"chords": ["C", "F", "G7"], "difficulty": 1}, "宗谷岬": {"chords": ["C", "G7", "F", "C7"], "difficulty": 1}, "小さい秋見つけた": {"chords": ["Dm", "A7", "Gm", "D7", "C7", "F", "C"], "difficulty": 2}, "少年時代": {"chords": ["C", "G7", "E7", "Am", "F", "Dm", "A7", "Gm"], "difficulty": 2}, "島唄": {"chords": ["C", "Dm", "G7", "Am", "Em7", "F"], "difficulty": 2}, "川の流れのように": {"chords": ["C", "Am", "Em", "Dm", "G", "G7", "F", "Fm", "Em7", "D7"], "difficulty": 3}, "想い出の渚": {"chords": ["C", "Am", "Dm", "G7", "Em7", "A7"], "difficulty": 2}, "故郷の空": {"chords": ["C", "G7", "F"], "difficulty": 1}, "旅愁": {"chords": ["C", "F", "G7"], "difficulty": 1}, "早春賦": {"chords": ["C", "F", "G7"], "difficulty": 1}, "春よ来い": {"chords": ["Dm", "Bb", "C", "F", "A", "Am", "Gm"], "difficulty": 2}, "栄光の架橋": {"chords": ["C", "Em7", "F", "G7", "Am", "G", "D7", "E7", "Csus4"], "difficulty": 2}, "浜辺の歌": {"chords": ["F", "C7", "Bb", "Caug"], "difficulty": 2}, "真珠貝の歌": {"chords": ["A7", "D7", "G", "C", "G7", "Cm", "D", "Gdim", "G6"], "difficulty": 3}, "知床旅情": {"chords": ["C", "F", "G7", "Dm", "Am"], "difficulty": 1}, "空も飛べるはず": {"chords": ["C", "G", "Am", "F", "Dm", "Em7", "Dm7", "G7"], "difficulty": 2}, "笑ったり転んだり": {"chords": ["C", "F", "Em7", "Am", "D7", "G7", "E7", "G"], "difficulty": 2}, "翼をください": {"chords": ["C", "C7", "F", "D7", "G7", "Am", "Em7"], "difficulty": 2}, "芭蕉布": {"chords": ["C", "Am", "G7", "E7", "F", "Dm"], "difficulty": 2}, "花はどこへ行った": {"chords": ["C", "Am", "F", "G7"], "difficulty": 1}, "花咲く旅路": {"chords": ["C", "G", "Dm", "Am", "G7", "Csus4"], "difficulty": 1}};
+
+// ---- フィルター ----
 function filterEra(era) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
@@ -479,9 +527,58 @@ function filterEra(era) {
   });
 }
 
+// ---- コード・難易度・参考演奏の注入 ----
+function renderMeta(refs) {
+  document.querySelectorAll('.song-item').forEach(item => {
+    const link = item.querySelector('.score-link');
+    if (!link) return;
+    const title = link.textContent.trim();
+    const meta = SONG_META[title];
+    const refUrl = refs[title];
+
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'song-meta';
+
+    if (meta) {
+      const stars = '★'.repeat(meta.difficulty) + '☆'.repeat(3 - meta.difficulty);
+      const diff = document.createElement('span');
+      diff.className = 'song-difficulty';
+      diff.textContent = stars;
+      metaDiv.appendChild(diff);
+
+      const chords = document.createElement('span');
+      chords.className = 'song-chords';
+      chords.textContent = meta.chords.join(' ');
+      metaDiv.appendChild(chords);
+    }
+
+    if (refUrl) {
+      const btn = document.createElement('a');
+      btn.className = 'ref-btn';
+      btn.href = refUrl;
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+      btn.textContent = '▶';
+      btn.title = '参考演奏';
+      metaDiv.appendChild(btn);
+    }
+
+    if (metaDiv.children.length > 0) {
+      const titleSpan = item.querySelector('.song-title');
+      if (titleSpan) titleSpan.appendChild(metaDiv);
+    }
+  });
+}
+
 // 初期カウント
 document.getElementById('visibleCount').textContent =
   document.querySelectorAll('.song-item').length;
+
+// references.json 読み込み（失敗時は空オブジェクト）
+fetch('references.json')
+  .then(r => r.ok ? r.json() : {})
+  .catch(() => ({}))
+  .then(refs => renderMeta(refs));
 </script>
 </body>
 </html>
