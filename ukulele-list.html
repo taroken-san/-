@@ -346,6 +346,7 @@
     <button class="mode-btn" onclick="setMode('season', this)">季節別</button>
   </div>
 
+  <div id="dynamic-filter-bar" class="filter-bar" style="display:none;"></div>
   <div id="dynamic-view" style="display:none;"></div>
 
   <div id="era-view">
@@ -691,6 +692,7 @@ function buildDynamicView(groupKey) {
     if (!groups[key] || groups[key].length === 0) return;
     const sec = document.createElement('div');
     sec.className = 'dynamic-section';
+    sec.dataset.groupKey = key;
     const color = colors[key] || '#6b5f4a';
     sec.innerHTML = `
       <div class="era-header">
@@ -715,6 +717,7 @@ function buildDynamicView(groupKey) {
     if (order.includes(key)) return;
     const sec = document.createElement('div');
     sec.className = 'dynamic-section';
+    sec.dataset.groupKey = key;
     sec.innerHTML = `
       <div class="era-header">
         <span class="era-badge" style="background:#6b5f4a;">${key}</span>
@@ -728,8 +731,35 @@ function buildDynamicView(groupKey) {
     container.appendChild(sec);
   });
 
+  // フィルタバーを構築
+  const fb = document.getElementById('dynamic-filter-bar');
+  fb.innerHTML = '<span style="font-size:0.78rem;color:var(--muted);align-self:center;">表示：</span>';
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-btn active';
+  allBtn.textContent = 'すべて';
+  allBtn.onclick = () => filterDynamic('all', allBtn);
+  fb.appendChild(allBtn);
+  const presentKeys = order.filter(k => groups[k] && groups[k].length > 0);
+  presentKeys.forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.textContent = key;
+    btn.onclick = () => filterDynamic(key, btn);
+    fb.appendChild(btn);
+  });
+
   document.getElementById('visibleCount').textContent =
-    document.querySelectorAll('.song-item').length;
+    document.querySelectorAll('#dynamic-view .song-item').length;
+}
+
+function filterDynamic(key, btn) {
+  document.querySelectorAll('#dynamic-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#dynamic-view .dynamic-section').forEach(sec => {
+    sec.style.display = (key === 'all' || sec.dataset.groupKey === key) ? '' : 'none';
+  });
+  document.getElementById('visibleCount').textContent =
+    document.querySelectorAll('#dynamic-view .dynamic-section:not([style*="none"]) .song-item').length;
 }
 
 function setMode(mode, btn) {
@@ -739,14 +769,17 @@ function setMode(mode, btn) {
   const eraView = document.getElementById('era-view');
   const dynView = document.getElementById('dynamic-view');
 
+  const dynFilterBar = document.getElementById('dynamic-filter-bar');
   if (mode === 'era') {
     eraView.style.display = '';
     dynView.style.display = 'none';
+    dynFilterBar.style.display = 'none';
     document.getElementById('visibleCount').textContent =
       document.querySelectorAll('#era-view .song-item').length;
   } else {
     eraView.style.display = 'none';
     dynView.style.display = '';
+    dynFilterBar.style.display = '';
     buildDynamicView(mode === 'book' ? 'book' : 'season');
   }
 }
