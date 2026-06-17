@@ -886,7 +886,7 @@ function renderMeta(refs, tips) {
           titleSpan.appendChild(md);
         }
         md.appendChild(btn);
-        titleSpan.appendChild(body);
+        item.insertAdjacentElement('afterend', body);
       }
     }
   });
