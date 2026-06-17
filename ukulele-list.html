@@ -330,6 +330,42 @@
     color: var(--muted);
     margin-top: 0.2rem;
   }
+
+  .info-btn {
+    font-size: 0.63rem;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 0 0.3rem;
+    line-height: 1.5;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .info-btn:hover {
+    background: #f0ebe0;
+    border-color: var(--muted);
+  }
+
+  .info-body {
+    display: none;
+    font-size: 0.72rem;
+    color: var(--ink);
+    background: #eef2f0;
+    border-left: 2px solid #6a9a7a;
+    padding: 0.4rem 0.6rem;
+    margin-top: 0.3rem;
+    border-radius: 0 2px 2px 0;
+    line-height: 1.6;
+  }
+
+  .info-composer {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
 </style>
 </head>
 <body>
@@ -812,7 +848,7 @@ function filterEra(era) {
 }
 
 // ---- コード・難易度・参考演奏の注入 ----
-function renderMeta(refs, tips) {
+function renderMeta(refs, tips, infos) {
   document.querySelectorAll('.song-item').forEach(item => {
     const link = item.querySelector('.score-link');
     if (!link) return;
@@ -889,6 +925,43 @@ function renderMeta(refs, tips) {
         item.insertAdjacentElement('afterend', body);
       }
     }
+
+    // 曲情報（📖ボタン）
+    const info = infos[title];
+    if (info && info.desc) {
+      const titleSpan = item.querySelector('.song-title');
+      if (titleSpan) {
+        const btn = document.createElement('button');
+        btn.className = 'info-btn';
+        btn.textContent = '📖';
+        btn.title = '曲の解説を見る';
+
+        const body = document.createElement('div');
+        body.className = 'info-body';
+        body.textContent = info.desc;
+        if (info.composer) {
+          const comp = document.createElement('div');
+          comp.className = 'info-composer';
+          comp.textContent = info.composer;
+          body.prepend(comp);
+        }
+
+        btn.addEventListener('click', () => {
+          const open = body.style.display === 'block';
+          body.style.display = open ? 'none' : 'block';
+          btn.style.background = open ? '' : '#eef2f0';
+        });
+
+        let md = titleSpan.querySelector('.song-meta');
+        if (!md) {
+          md = document.createElement('div');
+          md.className = 'song-meta';
+          titleSpan.appendChild(md);
+        }
+        md.appendChild(btn);
+        item.insertAdjacentElement('afterend', body);
+      }
+    }
   });
 }
 
@@ -896,11 +969,12 @@ function renderMeta(refs, tips) {
 document.getElementById('visibleCount').textContent =
   document.querySelectorAll('.song-item').length;
 
-// references.json と tips.json を並列読み込み
+// references.json / tips.json / info.json を並列読み込み
 Promise.all([
   fetch('references.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('tips.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
-]).then(([refs, tips]) => renderMeta(refs, tips));
+  fetch('info.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+]).then(([refs, tips, infos]) => renderMeta(refs, tips, infos));
 </script>
 </body>
 </html>
