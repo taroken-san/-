@@ -787,6 +787,10 @@ function buildDynamicView(groupKey) {
     fb.appendChild(btn);
   });
 
+  // 動的に生成した曲にコード・難易度・参考演奏・解説を再注入
+  renderMeta(META_DATA.refs, META_DATA.tips, META_DATA.infos,
+    document.getElementById('dynamic-view'));
+
   document.getElementById('visibleCount').textContent =
     document.querySelectorAll('#dynamic-view .song-item').length;
 }
@@ -848,13 +852,22 @@ function filterEra(era) {
 }
 
 // ---- コード・難易度・参考演奏の注入 ----
-function renderMeta(refs, tips, infos) {
-  document.querySelectorAll('.song-item').forEach(item => {
+function renderMeta(refs, tips, infos, root) {
+  (root || document).querySelectorAll('.song-item').forEach(item => {
     const link = item.querySelector('.score-link');
     if (!link) return;
     const title = link.textContent.trim();
     const meta = SONG_META[title];
     const refUrl = refs[title];
+
+    // 既存のメタ（クローン由来など）を除去して再構築
+    item.querySelectorAll('.song-meta').forEach(el => el.remove());
+    let nx = item.nextElementSibling;
+    while (nx && (nx.classList.contains('info-body') || nx.classList.contains('tip-body'))) {
+      const toRemove = nx;
+      nx = nx.nextElementSibling;
+      toRemove.remove();
+    }
 
     const metaDiv = document.createElement('div');
     metaDiv.className = 'song-meta';
@@ -970,11 +983,15 @@ document.getElementById('visibleCount').textContent =
   document.querySelectorAll('.song-item').length;
 
 // references.json / tips.json / info.json を並列読み込み
+let META_DATA = { refs: {}, tips: {}, infos: {} };
 Promise.all([
   fetch('references.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('tips.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('info.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
-]).then(([refs, tips, infos]) => renderMeta(refs, tips, infos));
+]).then(([refs, tips, infos]) => {
+  META_DATA = { refs, tips, infos };
+  renderMeta(refs, tips, infos);
+});
 </script>
 </body>
 </html>
