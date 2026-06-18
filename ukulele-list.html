@@ -402,6 +402,11 @@
     <button class="filter-btn" onclick="filterEra('taiken')">体験用</button>
   </div>
 
+  <div style="margin:0.6rem 0;">
+    <input id="songSearch" type="text" placeholder="🔍 曲名・作者で検索" oninput="searchSongs(this.value)"
+      style="width:100%;max-width:360px;padding:8px 12px;font-size:0.95rem;border:1px solid rgba(0,0,0,.2);border-radius:8px;box-sizing:border-box;">
+  </div>
+
   <div class="total-bar">全 <strong id="visibleCount">100</strong> 曲</div>
 
   <!-- 童謡・唱歌（明治〜大正） -->
@@ -868,6 +873,39 @@ function filterEra(era) {
   document.querySelectorAll('.divider').forEach(d => {
     d.style.display = era === 'all' ? '' : 'none';
   });
+}
+
+function searchSongs(q) {
+  q = (q || '').trim().toLowerCase();
+  const secs = document.querySelectorAll('#era-view .era-section');
+  const dividers = document.querySelectorAll('#era-view .divider');
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  const allBtn = document.querySelector('.filter-btn');
+  if (allBtn) allBtn.classList.add('active');
+  if (!q) {
+    secs.forEach(s => {
+      s.style.display = '';
+      s.querySelectorAll('.song-item').forEach(i => i.style.display = '');
+    });
+    dividers.forEach(d => d.style.display = '');
+    document.getElementById('visibleCount').textContent =
+      document.querySelectorAll('#era-view .song-item').length;
+    return;
+  }
+  let total = 0;
+  secs.forEach(sec => {
+    let any = false;
+    sec.style.display = '';
+    sec.querySelectorAll('.song-item').forEach(it => {
+      const name = (it.querySelector('.song-title')?.textContent || '').toLowerCase();
+      const hit = name.includes(q);
+      it.style.display = hit ? '' : 'none';
+      if (hit) { any = true; total++; }
+    });
+    if (!any) sec.style.display = 'none';
+  });
+  dividers.forEach(d => d.style.display = 'none');
+  document.getElementById('visibleCount').textContent = total;
 }
 
 // ---- コード・難易度・参考演奏の注入 ----
