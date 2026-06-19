@@ -377,6 +377,12 @@
     <div class="note">※ 年代は原曲の発表年・作曲年を基準。重複曲は代表的な収録箇所のみ掲載。</div>
   </header>
 
+  <section id="update-history" style="display:none; margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 4px 4px 0;">
+    <div style="font-size:0.82rem; font-weight:bold; color:var(--accent); margin-bottom:0.35rem;">📋 更新履歴</div>
+    <div id="history-list"></div>
+    <button id="history-more" style="display:none; margin-top:0.3rem; font-size:0.72rem; background:none; border:none; color:var(--accent); cursor:pointer; padding:0;">もっと見る</button>
+  </section>
+
   <div class="mode-bar">
     <button class="mode-btn active" onclick="setMode('book', this)">冊目別</button>
     <button class="mode-btn" onclick="setMode('era', this)">年代別</button>
@@ -1055,6 +1061,31 @@ document.addEventListener('DOMContentLoaded',function(){
   var bookBtn=document.querySelector('.mode-btn[onclick*="book"]');
   if(bookBtn) bookBtn.click();
 });
+</script>
+<script>
+(function(){
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  fetch('history.json').then(function(r){return r.ok?r.json():[];}).catch(function(){return [];}).then(function(arr){
+    if(!Array.isArray(arr)||!arr.length) return;
+    var sec=document.getElementById('update-history');
+    var list=document.getElementById('history-list');
+    var more=document.getElementById('history-more');
+    var shown=5;
+    function render(){
+      list.innerHTML=arr.slice(0,shown).map(function(h){
+        var date=h.date?'<span style="color:var(--muted)">'+esc(h.date)+'</span> ':'';
+        var song=h.song?' <span style="color:var(--accent2)">['+esc(h.song)+']</span>':'';
+        var who=h.author?' <span style="color:var(--muted); font-size:0.92em">- '+esc(h.author)+'</span>':'';
+        var text=esc(h.text||'').replace(/\n/g,'<br>');
+        return '<div style="font-size:0.78rem; line-height:1.5; padding:0.25rem 0; border-bottom:1px solid #e6ddc8;">'+date+text+song+who+'</div>';
+      }).join('');
+      more.style.display = arr.length>shown ? '' : 'none';
+    }
+    more.onclick=function(){ shown=arr.length; render(); more.style.display='none'; };
+    sec.style.display='';
+    render();
+  });
+})();
 </script>
 </body>
 </html>
