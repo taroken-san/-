@@ -367,6 +367,92 @@
     color: var(--muted);
     margin-top: 0.2rem;
   }
+
+  .qa-section {
+    display: none;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0.7rem 0.8rem;
+    background: var(--paper);
+    border-left: 3px solid #4a7a5a;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .qa-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .qa-title {
+    font-size: 0.86rem;
+    font-weight: bold;
+    color: #3f6d4f;
+  }
+
+  .qa-link, .qa-btn {
+    font-family: inherit;
+    font-size: 0.68rem;
+    color: #3f6d4f;
+    background: none;
+    border: 1px solid #8fb39a;
+    border-radius: 2px;
+    padding: 0.08rem 0.35rem;
+    line-height: 1.5;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .qa-link:hover, .qa-btn:hover {
+    background: #edf5ee;
+  }
+
+  .qa-empty {
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+
+  .qa-list {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .qa-item {
+    padding: 0.5rem 0;
+    border-top: 1px solid #e6ddc8;
+  }
+
+  .qa-meta {
+    font-size: 0.66rem;
+    color: var(--muted);
+    margin-bottom: 0.18rem;
+  }
+
+  .qa-question {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .qa-answer {
+    margin-top: 0.35rem;
+    padding: 0.4rem 0.55rem;
+    background: #eef2f0;
+    border-left: 2px solid #6a9a7a;
+    border-radius: 0 2px 2px 0;
+    font-size: 0.74rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .qa-answer-meta {
+    display: block;
+    color: var(--muted);
+    font-size: 0.65rem;
+    margin-top: 0.25rem;
+  }
 </style>
 </head>
 <body>
@@ -381,6 +467,14 @@
     <div style="font-size:0.82rem; font-weight:bold; color:var(--accent); margin-bottom:0.35rem;">📋 更新履歴</div>
     <div id="history-list"></div>
     <button id="history-more" style="display:none; margin-top:0.3rem; font-size:0.72rem; background:none; border:none; color:var(--accent); cursor:pointer; padding:0;">もっと見る</button>
+  </section>
+
+  <section id="qa-section" class="qa-section">
+    <div class="qa-head">
+      <div class="qa-title">講師Q&amp;A</div>
+      <a id="qa-general-link" class="qa-link" href="#" target="_blank" rel="noopener" style="display:none;">一般質問を書く</a>
+    </div>
+    <div id="qa-list" class="qa-list"></div>
   </section>
 
   <div class="mode-bar">
@@ -734,6 +828,10 @@ const BOOK_ORDER = ['体験用','旧1冊目','旧2冊目','旧3冊目','旧4冊�
 const BOOK_COLORS = {'体験用':'#7a4a1a','旧1冊目':'#6a3a2a','旧2冊目':'#8a5a3a','旧3冊目':'#7a5c8a','旧4冊目':'#2a5f7a','旧5冊目':'#8a4a2a','旧6冊目':'#6a6a2a','旧7冊目':'#3a6a6a','新1冊目':'#4a6741','新2冊目':'#3a5a8a','副教材':'#6b5f4a'};
 const SEASON_ORDER = ['春','夏','秋','冬','通年'];
 const SEASON_COLORS = {'春':'#4a7a5a','夏':'#2a6a8a','秋':'#8a5a2a','冬':'#4a5a8a','通年':'#6b5f4a'};
+const QA_QUESTION_FORM_URL = '';
+const QA_QUESTION_SONG_ENTRY = '';
+const QA_ANSWER_FORM_URL = '';
+const QA_ANSWER_ID_ENTRY = '';
 
 function buildDynamicView(groupKey) {
   const groups = {};
@@ -820,6 +918,7 @@ function buildDynamicView(groupKey) {
   // 動的に生成した曲にコード・難易度・参考演奏・解説を再注入
   renderMeta(META_DATA.refs, META_DATA.tips, META_DATA.infos,
     document.getElementById('dynamic-view'));
+  renderQuestionButtons(document.getElementById('dynamic-view'));
 
   document.getElementById('visibleCount').textContent =
     document.querySelectorAll('#dynamic-view .song-item').length;
@@ -1041,19 +1140,119 @@ function renderMeta(refs, tips, infos, root) {
   });
 }
 
+function makePrefillUrl(base, params) {
+  if (!base) return '';
+  const parts = [];
+  Object.keys(params).forEach(key => {
+    if (!key || !params[key]) return;
+    parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+  });
+  if (!parts.length) return base;
+  return base + (base.indexOf('?') >= 0 ? '&' : '?') + 'usp=pp_url&' + parts.join('&');
+}
+
+function normalizeQA(arr) {
+  return Array.isArray(arr) ? arr.filter(q => q && q.question) : [];
+}
+
+function qaForSong(song) {
+  return (window.QA_DATA || []).filter(q => (q.song || '').trim() === song);
+}
+
+function renderQuestionButtons(root) {
+  (root || document).querySelectorAll('.song-item').forEach(item => {
+    const link = item.querySelector('.score-link');
+    const titleSpan = item.querySelector('.song-title');
+    if (!link || !titleSpan) return;
+    const title = link.textContent.trim();
+    let md = titleSpan.querySelector('.song-meta');
+    const existing = titleSpan.querySelector('.qa-btn');
+    if (existing) existing.remove();
+    if (!QA_QUESTION_FORM_URL && qaForSong(title).length === 0) return;
+    if (!md) {
+      md = document.createElement('div');
+      md.className = 'song-meta';
+      titleSpan.appendChild(md);
+    }
+    const btn = document.createElement(QA_QUESTION_FORM_URL ? 'a' : 'button');
+    btn.className = 'qa-btn';
+    const count = qaForSong(title).length;
+    btn.textContent = count ? '?' + count : '?';
+    btn.title = count ? 'この曲の質問を見る・書く' : 'この曲の質問を書く';
+    if (QA_QUESTION_FORM_URL) {
+      btn.href = makePrefillUrl(QA_QUESTION_FORM_URL, { [QA_QUESTION_SONG_ENTRY]: title });
+      btn.target = '_blank';
+      btn.rel = 'noopener';
+    }
+    btn.addEventListener('click', function(e) {
+      if (count) {
+        e.preventDefault();
+        renderQASection(title);
+        document.getElementById('qa-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    md.appendChild(btn);
+  });
+}
+
+function renderQASection(song) {
+  const section = document.getElementById('qa-section');
+  const list = document.getElementById('qa-list');
+  const general = document.getElementById('qa-general-link');
+  const all = window.QA_DATA || [];
+  const items = song ? qaForSong(song) : all;
+
+  if (QA_QUESTION_FORM_URL) {
+    general.href = makePrefillUrl(QA_QUESTION_FORM_URL, {});
+    general.style.display = '';
+  }
+
+  if (!items.length) {
+    list.innerHTML = '<div class="qa-empty">まだ質問はありません。</div>';
+    section.style.display = QA_QUESTION_FORM_URL ? '' : 'none';
+    return;
+  }
+
+  list.innerHTML = items.slice(0, 12).map(function(q) {
+    const songLabel = q.song ? '[' + escHtml(q.song) + '] ' : '[一般] ';
+    const date = q.date ? escHtml(q.date) + ' ' : '';
+    const author = q.author ? ' - ' + escHtml(q.author) : '';
+    const answers = Array.isArray(q.answers) ? q.answers : [];
+    const answerHtml = answers.map(function(a) {
+      const who = a.author ? escHtml(a.author) : '';
+      const when = a.date ? escHtml(a.date) : '';
+      const meta = who || when ? '<span class="qa-answer-meta">' + [when, who].filter(Boolean).join(' - ') + '</span>' : '';
+      return '<div class="qa-answer">' + escHtml(a.text || '').replace(/\n/g, '<br>') + meta + '</div>';
+    }).join('');
+    const answerUrl = makePrefillUrl(QA_ANSWER_FORM_URL, { [QA_ANSWER_ID_ENTRY]: q.id || '' });
+    const answerLink = answerUrl ? ' <a class="qa-link" href="' + answerUrl + '" target="_blank" rel="noopener">回答する</a>' : '';
+    return '<div class="qa-item"><div class="qa-meta">' + date + songLabel + escHtml(author) + answerLink + '</div><div class="qa-question">' + escHtml(q.question).replace(/\n/g, '<br>') + '</div>' + answerHtml + '</div>';
+  }).join('');
+  section.style.display = '';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // 初期カウント
 document.getElementById('visibleCount').textContent =
   document.querySelectorAll('.song-item').length;
 
 // references.json / tips.json / info.json を並列読み込み
 let META_DATA = { refs: {}, tips: {}, infos: {} };
+window.QA_DATA = [];
 Promise.all([
   fetch('references.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('tips.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('info.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
-]).then(([refs, tips, infos]) => {
+  fetch('qa.json').then(r => r.ok ? r.json() : []).catch(() => ([])),
+]).then(([refs, tips, infos, qa]) => {
   META_DATA = { refs, tips, infos };
+  window.QA_DATA = normalizeQA(qa);
   renderMeta(refs, tips, infos);
+  renderQuestionButtons(document);
+  renderQASection();
 });
 </script>
 <script>
