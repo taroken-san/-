@@ -5,6 +5,12 @@
     "question": "テスト",
     "author": "テスト",
     "date": "2026-06-22",
-    "answers": []
+    "answers": [
+      {
+        "author": "テスト",
+        "date": "2026-06-22",
+        "text": "テスト"
+      }
+    ]
   }
 ]
