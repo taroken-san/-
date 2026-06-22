@@ -453,6 +453,18 @@
     font-size: 0.65rem;
     margin-top: 0.25rem;
   }
+
+  .qa-body {
+    display: none;
+    font-size: 0.74rem;
+    color: var(--ink);
+    background: #f7faf6;
+    border-left: 2px solid #6a9a7a;
+    padding: 0.45rem 0.6rem;
+    margin-top: 0.3rem;
+    border-radius: 0 2px 2px 0;
+    line-height: 1.6;
+  }
 </style>
 </head>
 <body>
@@ -1168,6 +1180,12 @@ function renderQuestionButtons(root) {
     let md = titleSpan.querySelector('.song-meta');
     const existing = titleSpan.querySelector('.qa-btn');
     if (existing) existing.remove();
+    let nx = item.nextElementSibling;
+    while (nx && nx.classList.contains('qa-body')) {
+      const toRemove = nx;
+      nx = nx.nextElementSibling;
+      toRemove.remove();
+    }
     if (!QA_QUESTION_FORM_URL && qaForSong(title).length === 0) return;
     if (!md) {
       md = document.createElement('div');
@@ -1187,12 +1205,44 @@ function renderQuestionButtons(root) {
     btn.addEventListener('click', function(e) {
       if (count) {
         e.preventDefault();
-        renderQASection(title);
-        document.getElementById('qa-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        toggleSongQA(item, title, btn);
       }
     });
     md.appendChild(btn);
   });
+}
+
+function toggleSongQA(item, title, btn) {
+  let body = item.nextElementSibling && item.nextElementSibling.classList.contains('qa-body')
+    ? item.nextElementSibling
+    : null;
+  if (!body) {
+    body = document.createElement('div');
+    body.className = 'qa-body';
+    body.innerHTML = buildQAHtml(qaForSong(title));
+    item.insertAdjacentElement('afterend', body);
+  }
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  btn.style.background = open ? '' : '#edf5ee';
+}
+
+function buildQAHtml(items) {
+  if (!items.length) return '<div class="qa-empty">まだ質問はありません。</div>';
+  return items.map(function(q) {
+    const date = q.date ? escHtml(q.date) + ' ' : '';
+    const author = q.author ? ' - ' + escHtml(q.author) : '';
+    const answers = Array.isArray(q.answers) ? q.answers : [];
+    const answerHtml = answers.map(function(a) {
+      const who = a.author ? escHtml(a.author) : '';
+      const when = a.date ? escHtml(a.date) : '';
+      const meta = who || when ? '<span class="qa-answer-meta">' + [when, who].filter(Boolean).join(' - ') + '</span>' : '';
+      return '<div class="qa-answer">' + escHtml(a.text || '').replace(/\n/g, '<br>') + meta + '</div>';
+    }).join('');
+    const answerUrl = makePrefillUrl(QA_ANSWER_FORM_URL, { [QA_ANSWER_ID_ENTRY]: q.id || '' });
+    const answerLink = answerUrl ? ' <a class="qa-link" href="' + answerUrl + '" target="_blank" rel="noopener">回答する</a>' : '';
+    return '<div class="qa-item"><div class="qa-meta">' + date + escHtml(author) + answerLink + '</div><div class="qa-question">' + escHtml(q.question).replace(/\n/g, '<br>') + '</div>' + answerHtml + '</div>';
+  }).join('');
 }
 
 function renderQASection(song) {
