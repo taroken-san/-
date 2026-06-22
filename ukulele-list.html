@@ -43,44 +43,80 @@
   }
 
   header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.9rem;
     border-bottom: 2px solid var(--accent);
-    position: relative;
-  }
-
-  header::before {
-    content: '♪';
-    font-size: 1.2rem;
-    color: var(--accent2);
-    display: block;
-    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
   }
 
   h1 {
-    font-size: 1.8rem;
+    font-size: 1.45rem;
     font-weight: 700;
     color: var(--ink);
-    letter-spacing: 0.1em;
+    letter-spacing: 0;
     line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  .subtitle {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-top: 0.5rem;
-    letter-spacing: 0.05em;
+  .brand-mark {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    flex-shrink: 0;
   }
 
-  .note {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-top: 0.8rem;
-    background: #f0ebe0;
-    display: inline-block;
-    padding: 0.3rem 0.8rem;
+  .help-btn {
+    font-family: inherit;
+    font-size: 0.76rem;
+    color: var(--accent);
+    background: var(--paper);
+    border: 1px solid var(--line);
     border-radius: 2px;
+    padding: 0.25rem 0.55rem;
+    cursor: pointer;
+  }
+
+  .help-btn:hover {
+    background: #f0ebe0;
+  }
+
+  .help-panel {
+    display: none;
+    margin: 0 0 1rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--paper);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 4px 4px 0;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .help-panel.open {
+    display: block;
+  }
+
+  .help-panel strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .help-list {
+    display: grid;
+    gap: 0.25rem;
   }
 
   .container {
@@ -480,10 +516,19 @@
 <body>
 <div class="container">
   <header>
-    <h1>ウクレレ教材 曲リスト</h1>
-    <div class="subtitle">新教材・副教材・旧教材 統合版（重複除く）</div>
-    <div class="note">※ 年代は原曲の発表年・作曲年を基準。重複曲は代表的な収録箇所のみ掲載。</div>
+    <h1><span class="brand-mark">S</span>S&amp;Sウクレレ教材</h1>
+    <button id="help-toggle" class="help-btn" type="button">使い方</button>
   </header>
+
+  <section id="help-panel" class="help-panel">
+    <div class="help-list">
+      <div><strong>楽譜</strong> 曲名をタップするとPDFを開きます。</div>
+      <div><strong>表示切替</strong> 冊目別・年代別・季節別で曲を探せます。</div>
+      <div><strong>曲別メモ</strong> ▶は参考演奏、💡は講師アドバイス、📖は曲の解説です。</div>
+      <div><strong>質問</strong> 曲ごとの「?」でQ&amp;Aを開きます。上部の「質問を書く」から一般質問もできます。</div>
+      <div><strong>回答</strong> Q&amp;A内の「回答する」から投稿できます。回答は確認後に公開されます。</div>
+    </div>
+  </section>
 
   <section id="update-history" style="display:none; margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 4px 4px 0;">
     <div style="font-size:0.82rem; font-weight:bold; color:var(--accent); margin-bottom:0.35rem;">📋 更新履歴</div>
@@ -1351,6 +1396,13 @@ Promise.all([
 document.addEventListener('DOMContentLoaded',function(){
   var bookBtn=document.querySelector('.mode-btn[onclick*="book"]');
   if(bookBtn) bookBtn.click();
+  var helpBtn=document.getElementById('help-toggle');
+  var helpPanel=document.getElementById('help-panel');
+  if(helpBtn&&helpPanel){
+    helpBtn.addEventListener('click',function(){
+      helpPanel.classList.toggle('open');
+    });
+  }
 });
 </script>
 <script>
