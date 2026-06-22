@@ -524,8 +524,11 @@
     </div>
   </section>
 
-  <section id="update-history" style="display:none; margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 4px 4px 0;">
-    <div style="font-size:0.82rem; font-weight:bold; color:var(--accent); margin-bottom:0.35rem;">📋 更新履歴</div>
+  <section id="update-history" style="margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 4px 4px 0;">
+    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
+      <div style="font-size:0.82rem; font-weight:bold; color:var(--accent);">📋 更新履歴</div>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu_CtOXxpg6WZeQ2I1z4FnSFoN2N_EkzzUeRyH2Vtq6A6Ptw/viewform" target="_blank" rel="noopener" style="font-size:0.68rem; color:var(--accent); background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:0.08rem 0.35rem; line-height:1.5; text-decoration:none;">履歴を書く</a>
+    </div>
     <div id="history-list"></div>
     <button id="history-more" style="display:none; margin-top:0.3rem; font-size:0.72rem; background:none; border:none; color:var(--accent); cursor:pointer; padding:0;">もっと見る</button>
   </section>
@@ -1403,12 +1406,17 @@ document.addEventListener('DOMContentLoaded',function(){
 (function(){
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   fetch('history.json').then(function(r){return r.ok?r.json():[];}).catch(function(){return [];}).then(function(arr){
-    if(!Array.isArray(arr)||!arr.length) return;
+    if(!Array.isArray(arr)) arr=[];
     var sec=document.getElementById('update-history');
     var list=document.getElementById('history-list');
     var more=document.getElementById('history-more');
     var shown=5;
     function render(){
+      if(!arr.length){
+        list.innerHTML='<div style="font-size:0.76rem; color:var(--muted);">まだ履歴はありません。</div>';
+        more.style.display='none';
+        return;
+      }
       list.innerHTML=arr.slice(0,shown).map(function(h){
         var date=h.date?'<span style="color:var(--muted)">'+esc(h.date)+'</span> ':'';
         var song=h.song?' <span style="color:var(--accent2)">['+esc(h.song)+']</span>':'';
