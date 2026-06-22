@@ -369,7 +369,6 @@
   }
 
   .qa-section {
-    display: none;
     margin: 0.4rem 0 1.4rem;
     padding: 0.7rem 0.8rem;
     background: var(--paper);
@@ -389,6 +388,12 @@
     font-size: 0.86rem;
     font-weight: bold;
     color: #3f6d4f;
+  }
+
+  .qa-count {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-right: auto;
   }
 
   .qa-link, .qa-btn {
@@ -415,6 +420,11 @@
   }
 
   .qa-list {
+    display: none;
+    margin-top: 0.45rem;
+  }
+
+  .qa-list.open {
     display: grid;
     gap: 0.55rem;
   }
@@ -484,7 +494,10 @@
   <section id="qa-section" class="qa-section">
     <div class="qa-head">
       <div class="qa-title">講師Q&amp;A</div>
-      <a id="qa-general-link" class="qa-link" href="#" target="_blank" rel="noopener" style="display:none;">一般質問を書く</a>
+      <span id="qa-count" class="qa-count"></span>
+      <button id="qa-all-btn" class="qa-btn" type="button">全Q&amp;A</button>
+      <button id="qa-general-btn" class="qa-btn" type="button" style="display:none;">一般?0</button>
+      <a id="qa-general-link" class="qa-link" href="#" target="_blank" rel="noopener" style="display:none;">質問を書く</a>
     </div>
     <div id="qa-list" class="qa-list"></div>
   </section>
@@ -1171,6 +1184,10 @@ function qaForSong(song) {
   return (window.QA_DATA || []).filter(q => (q.song || '').trim() === song);
 }
 
+function generalQA() {
+  return (window.QA_DATA || []).filter(q => !(q.song || '').trim());
+}
+
 function renderQuestionButtons(root) {
   (root || document).querySelectorAll('.song-item').forEach(item => {
     const link = item.querySelector('.score-link');
@@ -1249,17 +1266,42 @@ function renderQASection(song) {
   const section = document.getElementById('qa-section');
   const list = document.getElementById('qa-list');
   const general = document.getElementById('qa-general-link');
+  const allBtn = document.getElementById('qa-all-btn');
+  const generalBtn = document.getElementById('qa-general-btn');
+  const countLabel = document.getElementById('qa-count');
   const all = window.QA_DATA || [];
-  const items = song ? qaForSong(song) : all;
+  const generalItems = generalQA();
+  const items = song === '__general__' ? generalItems : (song ? qaForSong(song) : all);
+
+  section.style.display = '';
+  if (countLabel) {
+    countLabel.textContent = all.length ? '全' + all.length + '件' : 'まだ質問はありません';
+  }
 
   if (QA_QUESTION_FORM_URL) {
     general.href = makePrefillUrl(QA_QUESTION_FORM_URL, {});
     general.style.display = '';
   }
 
+  if (allBtn) {
+    allBtn.onclick = function() {
+      renderQASection();
+      list.classList.toggle('open');
+    };
+  }
+
+  if (generalBtn) {
+    generalBtn.textContent = '一般?' + generalItems.length;
+    generalBtn.style.display = generalItems.length ? '' : 'none';
+    generalBtn.onclick = function() {
+      renderQASection('__general__');
+      list.classList.add('open');
+    };
+  }
+
   if (!items.length) {
     list.innerHTML = '<div class="qa-empty">まだ質問はありません。</div>';
-    section.style.display = QA_QUESTION_FORM_URL ? '' : 'none';
+    list.classList.remove('open');
     return;
   }
 
@@ -1278,7 +1320,7 @@ function renderQASection(song) {
     const answerLink = answerUrl ? ' <a class="qa-link" href="' + answerUrl + '" target="_blank" rel="noopener">回答する</a>' : '';
     return '<div class="qa-item"><div class="qa-meta">' + date + songLabel + escHtml(author) + answerLink + '</div><div class="qa-question">' + escHtml(q.question).replace(/\n/g, '<br>') + '</div>' + answerHtml + '</div>';
   }).join('');
-  section.style.display = '';
+  if (song) list.classList.add('open');
 }
 
 function escHtml(s) {
