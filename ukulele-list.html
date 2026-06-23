@@ -533,9 +533,14 @@
     <button id="history-more" style="display:none; margin-top:0.3rem; font-size:0.72rem; background:none; border:none; color:var(--accent); cursor:pointer; padding:0;">もっと見る</button>
   </section>
 
-  <div style="margin:0 0 0.9rem; text-align:right;">
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSe993ZG2ASXBWTc9g1p_7nBLFZriZN6Qmadpf2jaFsbR5bcPw/viewform" target="_blank" rel="noopener" style="font-size:0.78rem; color:var(--accent); background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:0.2rem 0.5rem; text-decoration:none;">🎵 楽譜リクエスト</a>
-  </div>
+  <section id="request-section" style="display:none; margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 4px 4px 0;">
+    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
+      <div style="font-size:0.82rem; font-weight:bold; color:var(--accent);">🎵 楽譜リクエスト</div>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSe993ZG2ASXBWTc9g1p_7nBLFZriZN6Qmadpf2jaFsbR5bcPw/viewform" target="_blank" rel="noopener" style="font-size:0.68rem; color:var(--accent); background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:0.08rem 0.35rem; line-height:1.5; text-decoration:none;">リクエストする</a>
+    </div>
+    <div id="request-list"></div>
+    <button id="request-more" style="display:none; margin-top:0.3rem; font-size:0.72rem; background:none; border:none; color:var(--accent); cursor:pointer; padding:0;">もっと見る</button>
+  </section>
 
   <section id="qa-section" class="qa-section">
     <div class="qa-head">
@@ -1427,6 +1432,31 @@ document.addEventListener('DOMContentLoaded',function(){
         var who=h.author?' <span style="color:var(--muted); font-size:0.92em">- '+esc(h.author)+'</span>':'';
         var text=esc(h.text||'').replace(/\n/g,'<br>');
         return '<div style="font-size:0.78rem; line-height:1.5; padding:0.25rem 0; border-bottom:1px solid #e6ddc8;">'+date+text+song+who+'</div>';
+      }).join('');
+      more.style.display = arr.length>shown ? '' : 'none';
+    }
+    more.onclick=function(){ shown=arr.length; render(); more.style.display='none'; };
+    sec.style.display='';
+    render();
+  });
+})();
+</script>
+<script>
+(function(){
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  fetch('requests.json').then(function(r){return r.ok?r.json():[];}).catch(function(){return [];}).then(function(arr){
+    if(!Array.isArray(arr)||!arr.length) return;
+    var sec=document.getElementById('request-section');
+    var list=document.getElementById('request-list');
+    var more=document.getElementById('request-more');
+    var shown=5;
+    function render(){
+      list.innerHTML=arr.slice(0,shown).map(function(h){
+        var date=h.date?'<span style="color:var(--muted)">'+esc(h.date)+'</span> ':'';
+        var song='<span style="color:var(--accent2)">'+esc(h.song||'')+'</span>';
+        var reason=h.reason?' <span style="font-size:0.92em; color:var(--muted)">— '+esc(h.reason)+'</span>':'';
+        var who=h.author?' <span style="color:var(--muted); font-size:0.92em">（'+esc(h.author)+'）</span>':'';
+        return '<div style="font-size:0.78rem; line-height:1.5; padding:0.25rem 0; border-bottom:1px solid #e6ddc8;">'+date+song+reason+who+'</div>';
       }).join('');
       more.style.display = arr.length>shown ? '' : 'none';
     }
