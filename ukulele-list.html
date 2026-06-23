@@ -78,7 +78,7 @@
     color: var(--accent);
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 2px;
+    border-radius: 999px;
     padding: 0.25rem 0.55rem;
     cursor: pointer;
   }
@@ -93,7 +93,7 @@
     padding: 0.7rem 0.85rem;
     background: var(--paper);
     border-left: 3px solid var(--accent2);
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 16px 16px 0;
     font-size: 0.78rem;
     line-height: 1.7;
     color: var(--muted);
@@ -136,7 +136,7 @@
     font-weight: 600;
     color: #fff;
     padding: 0.2rem 0.7rem;
-    border-radius: 2px;
+    border-radius: 999px;
     letter-spacing: 0.08em;
     flex-shrink: 0;
   }
@@ -166,7 +166,7 @@
     padding: 0.35rem 0.5rem;
     border-left: 2px solid transparent;
     transition: border-color 0.2s, background 0.2s;
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 12px 12px 0;
   }
 
   .song-item:hover {
@@ -197,7 +197,7 @@
     gap: 0;
     margin-bottom: 1rem;
     border: 1px solid var(--line);
-    border-radius: 3px;
+    border-radius: 999px;
     overflow: hidden;
     width: fit-content;
   }
@@ -233,7 +233,7 @@
     padding: 1rem;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: 16px;
   }
 
   .filter-btn {
@@ -244,7 +244,7 @@
     background: transparent;
     color: var(--muted);
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 999px;
     transition: all 0.2s;
   }
 
@@ -312,7 +312,7 @@
     color: var(--accent);
     text-decoration: none;
     border: 1px solid var(--accent2);
-    border-radius: 2px;
+    border-radius: 999px;
     padding: 0 0.3rem;
     line-height: 1.5;
     display: inline-block;
@@ -329,7 +329,7 @@
     font-size: 0.63rem;
     background: none;
     border: 1px solid var(--line);
-    border-radius: 2px;
+    border-radius: 999px;
     padding: 0 0.3rem;
     line-height: 1.5;
     cursor: pointer;
@@ -351,7 +351,7 @@
     border-left: 2px solid var(--accent2);
     padding: 0.4rem 0.6rem;
     margin-top: 0.3rem;
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 12px 12px 0;
     line-height: 1.6;
     white-space: pre-wrap;
   }
@@ -366,7 +366,7 @@
     font-size: 0.63rem;
     background: none;
     border: 1px solid var(--line);
-    border-radius: 2px;
+    border-radius: 999px;
     padding: 0 0.3rem;
     line-height: 1.5;
     cursor: pointer;
@@ -388,7 +388,7 @@
     border-left: 2px solid #6a9a7a;
     padding: 0.4rem 0.6rem;
     margin-top: 0.3rem;
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 12px 12px 0;
     line-height: 1.6;
   }
 
@@ -403,7 +403,7 @@
     padding: 0.7rem 0.8rem;
     background: var(--paper);
     border-left: 3px solid #4a7a5a;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 16px 16px 0;
   }
 
   .qa-head {
@@ -432,7 +432,7 @@
     color: #3f6d4f;
     background: none;
     border: 1px solid #8fb39a;
-    border-radius: 2px;
+    border-radius: 999px;
     padding: 0.08rem 0.35rem;
     line-height: 1.5;
     text-decoration: none;
@@ -481,7 +481,7 @@
     padding: 0.4rem 0.55rem;
     background: #eef2f0;
     border-left: 2px solid #6a9a7a;
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 12px 12px 0;
     font-size: 0.74rem;
     line-height: 1.6;
     white-space: pre-wrap;
@@ -502,7 +502,7 @@
     border-left: 2px solid #6a9a7a;
     padding: 0.45rem 0.6rem;
     margin-top: 0.3rem;
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 12px 12px 0;
     line-height: 1.6;
   }
 </style>
@@ -524,19 +524,19 @@
     </div>
   </section>
 
-  <section id="update-history" style="margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 4px 4px 0;">
+  <section id="update-history" style="margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 16px 16px 0;">
     <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
       <div style="font-size:0.82rem; font-weight:bold; color:var(--accent);">📋 更新履歴</div>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu_CtOXxpg6WZeQ2I1z4FnSFoN2N_EkzzUeRyH2Vtq6A6Ptw/viewform" target="_blank" rel="noopener" style="font-size:0.68rem; color:var(--accent); background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:0.08rem 0.35rem; line-height:1.5; text-decoration:none;">履歴を書く</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdu_CtOXxpg6WZeQ2I1z4FnSFoN2N_EkzzUeRyH2Vtq6A6Ptw/viewform" target="_blank" rel="noopener" style="font-size:0.68rem; color:var(--accent); background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:0.08rem 0.35rem; line-height:1.5; text-decoration:none;">履歴を書く</a>
     </div>
     <div id="history-list"></div>
     <button id="history-more" style="display:none; margin-top:0.3rem; font-size:0.72rem; background:none; border:none; color:var(--accent); cursor:pointer; padding:0;">もっと見る</button>
   </section>
 
-  <section id="request-section" style="display:none; margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 4px 4px 0;">
+  <section id="request-section" style="display:none; margin:0.4rem 0 0.9rem; padding:0.5rem 0.7rem; background:#f5f1e8; border-left:3px solid var(--accent); border-radius:0 16px 16px 0;">
     <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.35rem;">
       <div style="font-size:0.82rem; font-weight:bold; color:var(--accent);">🎵 楽譜リクエスト</div>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSe993ZG2ASXBWTc9g1p_7nBLFZriZN6Qmadpf2jaFsbR5bcPw/viewform" target="_blank" rel="noopener" style="font-size:0.68rem; color:var(--accent); background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:0.08rem 0.35rem; line-height:1.5; text-decoration:none;">リクエストする</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSe993ZG2ASXBWTc9g1p_7nBLFZriZN6Qmadpf2jaFsbR5bcPw/viewform" target="_blank" rel="noopener" style="font-size:0.68rem; color:var(--accent); background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:0.08rem 0.35rem; line-height:1.5; text-decoration:none;">リクエストする</a>
     </div>
     <div id="request-list"></div>
     <button id="request-more" style="display:none; margin-top:0.3rem; font-size:0.72rem; background:none; border:none; color:var(--accent); cursor:pointer; padding:0;">もっと見る</button>
