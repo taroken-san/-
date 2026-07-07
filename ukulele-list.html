@@ -325,6 +325,24 @@
     border-color: var(--accent);
   }
 
+  .orig-btn {
+    font-size: 0.63rem;
+    color: #c0392b;
+    text-decoration: none;
+    border: 1px solid #d98880;
+    border-radius: 999px;
+    padding: 0 0.3rem;
+    line-height: 1.5;
+    display: inline-block;
+    transition: all 0.15s;
+  }
+
+  .orig-btn:hover {
+    background: #c0392b;
+    color: #fff;
+    border-color: #c0392b;
+  }
+
   .tip-btn {
     font-size: 0.63rem;
     background: none;
@@ -518,7 +536,7 @@
     <div class="help-list">
       <div><strong>楽譜</strong> 曲名をタップするとPDFを開きます。</div>
       <div><strong>表示切替</strong> 冊目別・年代別・季節別で曲を探せます。</div>
-      <div><strong>曲別メモ</strong> ▶は参考演奏、💡は講師アドバイス、📖は曲の解説です。</div>
+      <div><strong>曲別メモ</strong> ▶は参考演奏、🎬は原曲、💡は講師アドバイス、📖は曲の解説です。</div>
       <div><strong>質問</strong> 曲ごとの「?」でQ&amp;Aを開きます。上部の「質問を書く」から一般質問もできます。</div>
       <div><strong>回答</strong> Q&amp;A内の「回答する」から投稿できます。回答は確認後に公開されます。</div>
     </div>
@@ -993,7 +1011,7 @@ function buildDynamicView(groupKey) {
 
   // 動的に生成した曲にコード・難易度・参考演奏・解説を再注入
   renderMeta(META_DATA.refs, META_DATA.tips, META_DATA.infos,
-    document.getElementById('dynamic-view'));
+    document.getElementById('dynamic-view'), META_DATA.origs);
   renderQuestionButtons(document.getElementById('dynamic-view'));
 
   document.getElementById('visibleCount').textContent =
@@ -1090,7 +1108,7 @@ function searchSongs(q) {
 }
 
 // ---- コード・難易度・参考演奏の注入 ----
-function renderMeta(refs, tips, infos, root) {
+function renderMeta(refs, tips, infos, root, origs) {
   (root || document).querySelectorAll('.song-item').forEach(item => {
     const link = item.querySelector('.score-link');
     if (!link) return;
@@ -1132,6 +1150,18 @@ function renderMeta(refs, tips, infos, root) {
       btn.textContent = '▶';
       btn.title = '参考演奏';
       metaDiv.appendChild(btn);
+    }
+
+    const origUrl = (origs || {})[title];
+    if (origUrl) {
+      const ob = document.createElement('a');
+      ob.className = 'orig-btn';
+      ob.href = origUrl;
+      ob.target = '_blank';
+      ob.rel = 'noopener';
+      ob.textContent = '🎬';
+      ob.title = '原曲';
+      metaDiv.appendChild(ob);
     }
 
     if (metaDiv.children.length > 0) {
@@ -1383,17 +1413,18 @@ document.getElementById('visibleCount').textContent =
   document.querySelectorAll('.song-item').length;
 
 // references.json / tips.json / info.json を並列読み込み
-let META_DATA = { refs: {}, tips: {}, infos: {} };
+let META_DATA = { refs: {}, tips: {}, infos: {}, origs: {} };
 window.QA_DATA = [];
 Promise.all([
   fetch('references.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('tips.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('info.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
   fetch('qa.json').then(r => r.ok ? r.json() : []).catch(() => ([])),
-]).then(([refs, tips, infos, qa]) => {
-  META_DATA = { refs, tips, infos };
+  fetch('originals.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+]).then(([refs, tips, infos, qa, origs]) => {
+  META_DATA = { refs, tips, infos, origs };
   window.QA_DATA = normalizeQA(qa);
-  renderMeta(refs, tips, infos);
+  renderMeta(refs, tips, infos, null, origs);
   renderQuestionButtons(document);
   renderQASection();
 });
