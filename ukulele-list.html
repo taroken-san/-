@@ -577,6 +577,11 @@
     <button class="mode-btn" onclick="setMode('season', this)">季節別</button>
   </div>
 
+  <div style="margin:0.6rem 0;">
+    <input id="songSearch" type="text" placeholder="🔍 曲名・作者で検索" oninput="searchSongs(this.value)"
+      style="width:100%;max-width:360px;padding:8px 12px;font-size:0.95rem;border:1px solid rgba(0,0,0,.2);border-radius:8px;box-sizing:border-box;">
+  </div>
+
   <div id="dynamic-filter-bar" class="filter-bar" style="display:none;"></div>
   <div id="dynamic-view" style="display:none;"></div>
 
@@ -595,11 +600,6 @@
     <button class="filter-btn" onclick="filterEra('folk')">童謡・唱歌</button>
     <button class="filter-btn" onclick="filterEra('christmas')">クリスマス</button>
     <button class="filter-btn" onclick="filterEra('taiken')">体験用</button>
-  </div>
-
-  <div style="margin:0.6rem 0;">
-    <input id="songSearch" type="text" placeholder="🔍 曲名・作者で検索" oninput="searchSongs(this.value)"
-      style="width:100%;max-width:360px;padding:8px 12px;font-size:0.95rem;border:1px solid rgba(0,0,0,.2);border-radius:8px;box-sizing:border-box;">
   </div>
 
   <div class="total-bar">全 <strong id="visibleCount">100</strong> 曲</div>
@@ -1029,6 +1029,8 @@ function buildDynamicView(groupKey) {
 
   document.getElementById('visibleCount').textContent =
     document.querySelectorAll('#dynamic-view .song-item').length;
+
+  if (currentSearchQuery) searchSongs(currentSearchQuery);
 }
 
 function filterDynamic(key, btn) {
@@ -1055,6 +1057,7 @@ function setMode(mode, btn) {
     dynFilterBar.style.display = 'none';
     document.getElementById('visibleCount').textContent =
       document.querySelectorAll('#era-view .song-item').length;
+    if (currentSearchQuery) searchSongs(currentSearchQuery);
   } else {
     eraView.style.display = 'none';
     dynView.style.display = '';
@@ -1087,13 +1090,25 @@ function filterEra(era) {
   });
 }
 
+let currentSearchQuery = '';
+
 function searchSongs(q) {
-  q = (q || '').trim().toLowerCase();
-  const secs = document.querySelectorAll('#era-view .era-section');
-  const dividers = document.querySelectorAll('#era-view .divider');
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  const allBtn = document.querySelector('.filter-btn');
+  currentSearchQuery = q || '';
+  q = currentSearchQuery.trim().toLowerCase();
+
+  const eraView = document.getElementById('era-view');
+  const dynView = document.getElementById('dynamic-view');
+  const isEra = eraView.style.display !== 'none';
+  const active = isEra ? eraView : dynView;
+  const sectionSel = isEra ? '.era-section' : '.dynamic-section';
+  const filterBarSel = isEra ? '.filter-bar .filter-btn' : '#dynamic-filter-bar .filter-btn';
+  const dividers = isEra ? document.querySelectorAll('#era-view .divider') : [];
+
+  const secs = active.querySelectorAll(sectionSel);
+  document.querySelectorAll(filterBarSel).forEach(b => b.classList.remove('active'));
+  const allBtn = document.querySelector(filterBarSel);
   if (allBtn) allBtn.classList.add('active');
+
   if (!q) {
     secs.forEach(s => {
       s.style.display = '';
@@ -1101,7 +1116,7 @@ function searchSongs(q) {
     });
     dividers.forEach(d => d.style.display = '');
     document.getElementById('visibleCount').textContent =
-      document.querySelectorAll('#era-view .song-item').length;
+      active.querySelectorAll('.song-item').length;
     return;
   }
   let total = 0;
