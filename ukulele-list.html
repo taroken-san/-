@@ -974,6 +974,8 @@ const SONG_CATALOG = {"BLUE HAWAII": {"book": "副教材", "season": "冬"}, "HE
 const BOOK_ORDER = ['体験用','旧1冊目','旧2冊目','旧3冊目','旧4冊目','旧5冊目','旧6冊目','旧7冊目','新1冊目','新2冊目','副教材'];
 const BOOK_COLORS = {'体験用':'#7a4a1a','旧1冊目':'#6a3a2a','旧2冊目':'#8a5a3a','旧3冊目':'#7a5c8a','旧4冊目':'#2a5f7a','旧5冊目':'#8a4a2a','旧6冊目':'#6a6a2a','旧7冊目':'#3a6a6a','新1冊目':'#4a6741','新2冊目':'#3a5a8a','副教材':'#6b5f4a'};
 const NEW1_NUMBERS = {'メリーさんのひつじ':3,'ちょうちょう':5,'よろこびのうた':4,'きらきら星':6,'ふるさと':7,'タフワフワイ':8,'星に願いを':10,'バラが咲いた':11,'エーデルワイス':12,'カイマナヒラ':13,'大きな古時計':14,'みかんの花咲く丘':15,'花はどこへ行った':16,'真珠貝の歌':17,'四季の歌':18,'アロハオエ':19,'峠の我が家':20,'ドレミの歌':21,'小さな世界':22};
+const NEW2_NUMBERS = {'月の砂漠（ソロ）':1,'翼をください':2,'涙そうそう':3,'珊瑚礁の彼方':4,'野に咲く花のように':5,'小さな竹の橋':6,'パイナップルプリンセス':7,'サボテンの花':8,'Moon River':9,'Love':10,'コロラドの月':11,'プアリリレフア':12,'オー・シャンゼリゼ':14,'ルージュの伝言':15,'いい日旅立ち':16};
+const BOOK_NUMBERS = {'新1冊目': NEW1_NUMBERS, '新2冊目': NEW2_NUMBERS};
 const SEASON_ORDER = ['春','夏','秋','冬','通年'];
 const SEASON_COLORS = {'春':'#4a7a5a','夏':'#2a6a8a','秋':'#8a5a2a','冬':'#4a5a8a','通年':'#6b5f4a'};
 const QA_QUESTION_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfU2ocRDRyCDUKZ3xfivhh06GJmqdtzOdQLRieLRVoaQvFh1g/viewform';
@@ -1018,21 +1020,22 @@ function buildDynamicView(groupKey) {
       <div class="song-grid"></div>
     `;
     const grid = sec.querySelector('.song-grid');
-    if (key === '新1冊目') {
+    const numbers = BOOK_NUMBERS[key];
+    if (numbers) {
       groups[key].sort((a, b) => {
         const ta = a.querySelector('.score-link')?.textContent.trim();
         const tb = b.querySelector('.score-link')?.textContent.trim();
-        return (NEW1_NUMBERS[ta] || 999) - (NEW1_NUMBERS[tb] || 999);
+        return (numbers[ta] || 999) - (numbers[tb] || 999);
       });
     }
     groups[key].forEach(item => {
       // dotの色を合わせる
       const dot = item.querySelector('.song-dot');
       if (dot) dot.style.background = color;
-      if (key === '新1冊目') {
+      if (numbers) {
         const link = item.querySelector('.score-link');
         const titleSpan = item.querySelector('.song-title');
-        const no = link && NEW1_NUMBERS[link.textContent.trim()];
+        const no = link && numbers[link.textContent.trim()];
         if (no && titleSpan && link) {
           const noSpan = document.createElement('span');
           noSpan.className = 'song-no';
