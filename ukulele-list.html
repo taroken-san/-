@@ -1239,7 +1239,9 @@ function searchSongs(q) {
 // 隠しiframeでPDFを読み込み、window.print()を直接呼ぶことでOS標準の印刷ダイアログを出す） ----
 function printPdf(url) {
   const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  // 0サイズのiframeだとPDFのレイアウトが崩れて印刷されるため、
+  // 画面外に実寸(A4相当)で配置してから読み込む
+  iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:0;';
   iframe.src = url;
   iframe.onload = function () {
     try {
