@@ -326,6 +326,24 @@
     transition: all 0.15s;
   }
 
+  .print-btn {
+    font-family: inherit;
+    font-size: 0.63rem;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 0.3rem;
+    line-height: 1.5;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .print-btn:hover {
+    background: #f0ebe0;
+    border-color: var(--muted);
+  }
+
   .ref-btn:hover {
     background: var(--accent);
     color: #fff;
@@ -1217,6 +1235,24 @@ function searchSongs(q) {
   document.getElementById('visibleCount').textContent = total;
 }
 
+// ---- PDF印刷（ホーム画面アプリ化でSafariの共有/印刷メニューが使えないため、
+// 隠しiframeでPDFを読み込み、window.print()を直接呼ぶことでOS標準の印刷ダイアログを出す） ----
+function printPdf(url) {
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  iframe.src = url;
+  iframe.onload = function () {
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch (e) {
+      window.open(url, '_blank');
+    }
+  };
+  document.body.appendChild(iframe);
+  setTimeout(() => { iframe.remove(); }, 60000);
+}
+
 // ---- コード・難易度・参考演奏の注入 ----
 function renderMeta(refs, tips, infos, root, origs) {
   (root || document).querySelectorAll('.song-item').forEach(item => {
@@ -1237,6 +1273,20 @@ function renderMeta(refs, tips, infos, root, origs) {
 
     const metaDiv = document.createElement('div');
     metaDiv.className = 'song-meta';
+
+    const pdfUrl = link.getAttribute('href');
+    if (pdfUrl && !link.classList.contains('no-pdf')) {
+      const printBtn = document.createElement('button');
+      printBtn.type = 'button';
+      printBtn.className = 'print-btn';
+      printBtn.title = '楽譜を印刷';
+      printBtn.textContent = '🖨';
+      printBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        printPdf(pdfUrl);
+      });
+      metaDiv.appendChild(printBtn);
+    }
 
     if (meta) {
       const stars = '★'.repeat(meta.difficulty) + '☆'.repeat(3 - meta.difficulty);
