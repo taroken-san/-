@@ -1637,7 +1637,16 @@ document.addEventListener('DOMContentLoaded',function(){
         var song='<span style="color:var(--accent2)">'+esc(h.song||'')+'</span>';
         var reason=h.reason?' <span style="font-size:0.92em; color:var(--muted)">— '+esc(h.reason)+'</span>':'';
         var who=h.author?' <span style="color:var(--muted); font-size:0.92em">（'+esc(h.author)+'）</span>':'';
-        return '<div style="font-size:0.78rem; line-height:1.5; padding:0.25rem 0; border-bottom:1px solid #e6ddc8;">'+date+song+reason+who+'</div>';
+        var answers=(h.answers||[]).map(function(a){
+          var awhen=a.date?esc(a.date):'';
+          var awho=a.author?esc(a.author):'';
+          var ameta=(awhen||awho)?'<span style="display:block; color:var(--muted); font-size:0.65rem; margin-top:0.25rem;">'+[awhen,awho].filter(Boolean).join(' - ')+'</span>':'';
+          return '<div style="margin-top:0.35rem; padding:0.4rem 0.55rem; background:#eef2f0; border-left:2px solid #6a9a7a; border-radius:0 12px 12px 0; font-size:0.74rem; line-height:1.6; white-space:pre-wrap;">'+esc(a.text||'').replace(/\n/g,'<br>')+ameta+'</div>';
+        }).join('');
+        var answerUrl = (typeof makePrefillUrl==='function' && typeof QA_ANSWER_FORM_URL!=='undefined' && h.id)
+          ? makePrefillUrl(QA_ANSWER_FORM_URL, { [QA_ANSWER_ID_ENTRY]: h.id }) : '';
+        var answerLink = answerUrl ? ' <a href="'+answerUrl+'" target="_blank" rel="noopener" style="font-size:0.65rem; color:#3f6d4f; border:1px solid #8fb39a; border-radius:999px; padding:0.05rem 0.3rem; text-decoration:none;">回答する</a>' : '';
+        return '<div style="font-size:0.78rem; line-height:1.5; padding:0.3rem 0; border-bottom:1px solid #e6ddc8;">'+date+song+reason+who+answerLink+answers+'</div>';
       }).join('');
       more.style.display = arr.length>shown ? '' : 'none';
     }
