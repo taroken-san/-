@@ -1236,23 +1236,11 @@ function searchSongs(q) {
 }
 
 // ---- PDF印刷（ホーム画面アプリ化でSafariの共有/印刷メニューが使えないため、
-// 隠しiframeでPDFを読み込み、window.print()を直接呼ぶことでOS標準の印刷ダイアログを出す） ----
+// 隠しiframe+window.print()でレイアウトが崩れる問題が解決しなかったので、
+// PDFをネイティブのPDFビューアで直接開く方式に変更。開いた画面の共有(□に↑)
+// ボタンから「プリント」を選べば、本来のレイアウトのまま片面/両面選択も可能 ----
 function printPdf(url) {
-  const iframe = document.createElement('iframe');
-  // 0サイズのiframeだとPDFのレイアウトが崩れて印刷されるため、
-  // 画面外に実寸(A4相当)で配置してから読み込む
-  iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:0;';
-  iframe.src = url;
-  iframe.onload = function () {
-    try {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    } catch (e) {
-      window.open(url, '_blank');
-    }
-  };
-  document.body.appendChild(iframe);
-  setTimeout(() => { iframe.remove(); }, 60000);
+  window.open(url, '_blank');
 }
 
 // ---- コード・難易度・参考演奏の注入 ----
