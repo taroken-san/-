@@ -4,8 +4,8 @@
     {
       "name": "ukulele-list",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8787"],
-      "port": 8787
+      "runtimeArgs": ["-m", "http.server", "8754"],
+      "port": 8754
     }
   ]
 }
